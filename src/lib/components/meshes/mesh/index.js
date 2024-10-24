@@ -1,1 +1,1 @@
-export { default as Mesh } from './mesh.svelte';
+export { default as Mesh } from './Mesh.svelte';
