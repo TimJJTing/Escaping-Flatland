@@ -1,10 +1,16 @@
 # Escaping Flatland
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/ac853137-01da-4821-ad25-9782cd078ffe/deploy-status)](https://app.netlify.com/sites/escaping-flatland/deploys)
+
 > *“Even though we navigate daily through a perceptual world of three dimensions… the world displayed on our information displays is caught up in the two dimensionality of the endless flatlands of paper and video screens… Escaping this flatland is the essential task of envisioning information — for all the interesting worlds that we seek to understand are inevitably and happily multivariate in nature. Not flatlands.”* (Tufte 1990)
 
 Computer screens have the ability to display a wide range of information. Beyond 3D coordinates, they can simultaneously show colors, dynamic patterns, rotations, and motions, enabling human eyes to observe and interpret complex datasets. Zooming further enhances this by allowing both micro and macro readings on the same device, supporting more comprehensive data analysis.
 
 This project demonstrates optimization techniques for plotting large datasets in a 3D space using Three.js and Octree. It also explores how Three.js can be integrated into a Svelte project, though [Threlte](https://threlte.xyz/) offers a more mature solution for this purpose.
+
+## Live Demo
+
+Try [the live demo](https://escaping-flatland.netlify.app)!
 
 ## Developing
 
