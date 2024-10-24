@@ -9,7 +9,7 @@
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 	import Stats from 'three/addons/libs/stats.module.js';
 	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
-	import { SelectiveBloom, addLighting } from '$lib/utils';
+	import { SelectiveBloom } from '$lib/utils';
 	import { browser } from '$app/environment';
 	import {
 		setScene,
@@ -175,7 +175,6 @@
 				// labelRenderer.domElement.style.top = '0px';
 				// labelRenderer.domElement.style.pointerEvents = 'none';
 				// container.appendChild(labelRenderer.domElement);
-				addLighting($scene);
 				$postprocessor = new SelectiveBloom($renderer, $scene, $camera, BLOOM_LAYER);
 
 				$controls = new OrbitControls($camera, $renderer.domElement);
