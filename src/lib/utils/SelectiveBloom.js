@@ -11,7 +11,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 const defaultParams = {
 	threshold: 0.1,
 	strength: 0.8,
-	radius: 0.2
+	radius: 0.5
 };
 
 const vertexShader = `
@@ -28,12 +28,16 @@ const fragmentShader = `
 uniform sampler2D baseTexture;
 uniform sampler2D bloomTexture;
 
+uniform float bloomIntensity;
+
 varying vec2 vUv;
 
 void main() {
-    // final_color = original_texture + intensity * bloom_texture
-    gl_FragColor = ( texture2D( baseTexture, vUv ) + vec4( 1.0 ) * texture2D( bloomTexture, vUv ) );
-
+    vec4 baseColor = texture2D(baseTexture, vUv);
+    vec4 bloomColor = texture2D(bloomTexture, vUv);
+    
+    // Use a more controlled blend
+    gl_FragColor = baseColor + bloomColor * bloomIntensity;
 }
 `;
 
@@ -47,7 +51,9 @@ export class SelectiveBloom {
 	 * @returns this
 	 */
 	constructor(renderer, scene, camera, bloomScene = 1) {
-		this._darkMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
+		this._darkMaterial = new THREE.MeshBasicMaterial({
+			color: 0x000000
+		});
 		this._renderer = renderer;
 		this._scene = scene;
 		this._camera = camera;
@@ -55,8 +61,6 @@ export class SelectiveBloom {
 		this.bloomScene = bloomScene;
 		this.bloomLayer = new THREE.Layers();
 		this.bloomLayer.set(this.bloomScene);
-
-		this._materials = {};
 
 		this._renderScene = new RenderPass(scene, camera);
 		this._bloomPass = this._createBloomPass();
@@ -93,7 +97,8 @@ export class SelectiveBloom {
 			new THREE.ShaderMaterial({
 				uniforms: {
 					baseTexture: { value: null },
-					bloomTexture: { value: this.bloomComposer.renderTarget2.texture }
+					bloomTexture: { value: this.bloomComposer.renderTarget2.texture },
+					bloomIntensity: { value: 1.0 } // Adjust this value to control bloom intensity
 				},
 				vertexShader,
 				fragmentShader,
@@ -133,31 +138,6 @@ export class SelectiveBloom {
 		const outputPass = new OutputPass();
 		finalComposer.addPass(outputPass);
 		return finalComposer;
-	}
-
-	_darkenNonBloomed(obj) {
-		if (
-			(obj.isMesh || obj.isPoints) &&
-			obj.material &&
-			this.bloomLayer.test(obj.layers) === false
-		) {
-			this._materials[obj.uuid] = obj.material;
-			if (obj.isInstancedLabelSprites) {
-				obj.visible = false;
-			} else {
-				obj.material = this._darkMaterial;
-			}
-		}
-	}
-	_restoreMaterial(obj) {
-		if (this._materials[obj.uuid]) {
-			if (obj.isInstancedLabelSprites) {
-				obj.visible = true;
-			} else {
-				obj.material = this._materials[obj.uuid];
-			}
-			delete this._materials[obj.uuid];
-		}
 	}
 
 	// /**
@@ -220,24 +200,66 @@ export class SelectiveBloom {
 		return {
 			threshold: this._bloomPass.threshold,
 			strength: this._bloomPass.strength,
-			radius: this._bloomPass.radius,
-		}
+			radius: this._bloomPass.radius
+		};
 	}
 
 	/**
 	 * Use this render function to activate the effect
 	 */
 	render() {
-		let background = this._scene.background;
-		// traverse objects and replace non-bloomed's materials or hide them completely
-		this._scene.traverseVisible(this._darkenNonBloomed.bind(this));
+		const originalBackground = this._scene.background;
+		const nonBloomedMaterials = {};
+		this._scene.background = new THREE.Color(0x000000);
+
+		// Darken non-bloomed objects:
+		// traverse objects and replace non-bloomed's materials or hide them completely.
+		// note: use traverse (not traverseVisible) so all LOD level children get covered.
+		// THREE.LOD.update(camera) runs inside bloomComposer.render() and can swap the
+		// active level — if we only darken the currently-visible level, a newly-active
+		// level still has its bright material and leaks into the bloom extract, causing
+		// far objects to blink on LOD transitions.
+		// note: non-bloom THREE.Points get hidden, not darkened. Assigning the
+		// MeshBasicMaterial _darkMaterial to a Points object makes three.js draw it as
+		// 1-pixel dots that still write depth. With many points (e.g. a 500k-particle
+		// background), individual dots screen-align with bloom-layer objects as the
+		// camera moves and depth-occlude them in bloomComposer only — but not in
+		// finalComposer, where the original PointsMaterial is transparent (depthWrite
+		// off). The bloom contribution then toggles per frame, blinking far stars.
+		const hiddenObjects = (this._hiddenObjects = []);
+		this._scene.traverse((obj) => {
+			if ((obj.isMesh || obj.isPoints) && obj.material && !this.bloomLayer.test(obj.layers)) {
+				if (obj.isInstancedLabelSprites || obj.isPoints) {
+					if (obj.visible) {
+						hiddenObjects.push(obj);
+						obj.visible = false;
+					}
+				} else {
+					// Store original material
+					nonBloomedMaterials[obj.uuid] = obj.material;
+					obj.material = this._darkMaterial;
+				}
+			}
+		});
+
 		this._scene.background.set(0x000000);
 		// render scene for the first time
 		this.bloomComposer.render();
 
-		this._scene.background.set(background);
-		// traverse objects and restore non-bloomed's materials or unhide them
-		this._scene.traverse(this._restoreMaterial.bind(this));
+		this._scene.background.set(originalBackground);
+
+		// Restore original materials:
+		// traverse objects and restore non-bloomed's materials or unhide them.
+		// note we don't use traverseVisible here, otherwise it's possible that LOD objects' material won't get restored
+		for (let i = 0; i < hiddenObjects.length; i++) {
+			hiddenObjects[i].visible = true;
+		}
+		this._scene.traverse((obj) => {
+			if (obj.isMesh && nonBloomedMaterials[obj.uuid]) {
+				obj.material = nonBloomedMaterials[obj.uuid];
+			}
+		});
+
 		// final render
 		this.finalComposer.render();
 	}
