@@ -203,17 +203,20 @@ export class FrustumCuller {
 			}),
 			this.maxLDMeshCount
 		);
+		// Manual per-point frustum culling happens in cull(); rely on that instead of
+		// three.js's mesh-level cull, which would test against a bounding sphere that
+		// lags one frame behind instance updates and can spuriously hide whole meshes.
 		this.hdMesh.castShadow = false;
 		this.hdMesh.receiveShadow = false;
-		this.hdMesh.frustumCulled = true;
+		this.hdMesh.frustumCulled = false;
 		this.hdMesh.visible = true;
 		this.sdMesh.castShadow = false;
 		this.sdMesh.receiveShadow = false;
-		this.sdMesh.frustumCulled = true;
+		this.sdMesh.frustumCulled = false;
 		this.sdMesh.visible = true;
 		this.ldMesh.castShadow = false;
 		this.ldMesh.receiveShadow = false;
-		this.ldMesh.frustumCulled = true;
+		this.ldMesh.frustumCulled = false;
 		this.ldMesh.visible = true;
 
 		this.enabled = true;
@@ -290,11 +293,6 @@ export class FrustumCuller {
 		cullCamera.updateProjectionMatrix();
 
 		cullCamera.updateMatrixWorld(true);
-
-		this.hdMesh.computeBoundingSphere();
-		this.sdMesh.computeBoundingSphere();
-		this.ldMesh.computeBoundingSphere();
-		this.labelSprites.mesh.computeBoundingSphere();
 
 		frustum.setFromProjectionMatrix(
 			m.multiplyMatrices(cullCamera.projectionMatrix, cullCamera.matrixWorldInverse)
