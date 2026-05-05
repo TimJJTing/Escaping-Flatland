@@ -4,7 +4,7 @@
  * @param {number} n number of random particles
  * @param {number} s spacing
  */
-export const generateData = (palette, n = 500000, s = 10000) => {
+export const generateData = (palette, n = 1000000, s = 10000) => {
 	// coord
 	const positions = [];
 	const colors = [];
