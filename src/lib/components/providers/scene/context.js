@@ -212,3 +212,31 @@ export function setFuncPipelines() {
 export function getFuncPipelines() {
 	return getContext('funcPipelines');
 }
+
+/**
+ * @typedef {Object} Options
+ * @property {boolean} labelsEnabled
+ * @property {boolean} viewHelperEnabled
+ * @property {boolean} autoRotateEnabled
+ */
+
+/**
+ * @return {import('svelte/store').Writable<Options>}
+ */
+export function setOptions() {
+	/** @type {import('svelte/store').Writable<Options>} */
+	const options = writable({
+		labelsEnabled: true,
+		viewHelperEnabled: true,
+		autoRotateEnabled: true
+	});
+	setContext('options', options);
+	return options;
+}
+
+/**
+ * @return {import('svelte/store').Writable<Options>}
+ */
+export function getOptions() {
+	return getContext('options');
+}

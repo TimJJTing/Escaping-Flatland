@@ -387,7 +387,7 @@ export class FrustumCuller {
 									// add label
 									sprites.mesh.setMatrixAt(hdpts, tempObj.matrix);
 									//@ts-ignore
-									sprites.setLabelAt(hdpts, x.data.data[pidx].plate);
+									sprites.setLabelAt(hdpts, String(x.data.data[pidx].index));
 									hdpts++;
 								} else if (
 									octantContainsSDMesh &&

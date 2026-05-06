@@ -6,23 +6,20 @@
 		getScene,
 		getCamera,
 		getFuncPipelines,
-		getPostprocessor
+		getPostprocessor,
+		getOptions
 	} from '$lib/components/providers/scene';
 	import { buildPointOctree } from './buildPointOctree';
 	import { FrustumCuller } from '$lib/utils/FrustumCuller';
 	import { usePostProcessor } from '../utils';
 
-
-	
-
-	
 	/**
 	 * @typedef {Object} Props
 	 * @property {any} positions
 	 * @property {any} groups
 	 * @property {any} ids
 	 * @property {any} groupColors
-	 * @property {boolean} [postprocess] - add to postprocess?
+	 * @property {boolean} [postprocess]
 	 * @property {undefined|import('sparse-octree').PointOctree<any>} [octree]
 	 */
 
@@ -36,28 +33,23 @@
 		octree = $bindable(undefined)
 	} = $props();
 
-	/**
-	 * @type {undefined|FrustumCuller}
-	 */
+	/** @type {undefined|FrustumCuller} */
 	let frustumCuller = undefined;
-	/**
-	 * @type {import('three').Mesh|undefined}
-	 */
+	/** @type {import('three').Mesh|undefined} */
 	let fcHDParticles = $state(undefined);
-	/**
-	 * @type {import('three').Mesh|undefined}
-	 */
+	/** @type {import('three').Mesh|undefined} */
 	let fcSDParticles = $state();
-	/**
-	 * @type {import('three').Mesh|undefined}
-	 */
+	/** @type {import('three').Mesh|undefined} */
 	let fcLDParticles = $state();
+
+	let labelsInScene = false;
 
 	let id = {};
 	let scene = getScene();
 	let camera = getCamera();
 	let funcPipelines = getFuncPipelines();
 	let postprocessor = getPostprocessor();
+	let options = getOptions();
 
 	run(() => {
 		usePostProcessor(postprocess, $postprocessor, fcHDParticles);
@@ -69,14 +61,23 @@
 		usePostProcessor(postprocess, $postprocessor, fcLDParticles);
 	});
 
+	run(() => {
+		if (!frustumCuller || !$scene) return;
+		const labelMesh = frustumCuller.getLabels();
+		if ($options.labelsEnabled && !labelsInScene) {
+			$scene.add(labelMesh);
+			labelsInScene = true;
+		} else if (!$options.labelsEnabled && labelsInScene) {
+			$scene.remove(labelMesh);
+			labelsInScene = false;
+		}
+	});
+
 	onMount(() => {
-		// add mesh into scene
 		if ($scene && $camera) {
 			octree = buildPointOctree($scene, positions, groups, ids);
 
-			// Frustum culling for Octree
 			frustumCuller = new FrustumCuller(octree, $camera, 500, 600);
-			// frustum culled points are points with more detail and interactive
 			fcHDParticles = frustumCuller.getHDMesh();
 			$scene.add(fcHDParticles);
 
@@ -85,16 +86,16 @@
 
 			fcLDParticles = frustumCuller.getLDMesh();
 			$scene.add(fcLDParticles);
-			// if ($option.octantHelperEnabled) scene.add(frustumCuller.getOctantHelper());
-			// if ($option.cameraHelperEnabled) scene.add(frustumCuller.getCameraHelper());
-			// if ($option.labelsEnabled) scene.add(frustumCuller.getLabels());
 
-			// compute for the first render
+			if ($options.labelsEnabled) {
+				$scene.add(frustumCuller.getLabels());
+				labelsInScene = true;
+			}
+
 			frustumCuller.cull(groupColors);
-			
-			// make frustumCamera to stay in sync
+
 			$funcPipelines.registerCameraFunc(id, () => {
-				frustumCuller.cull(groupColors);
+				frustumCuller?.cull(groupColors);
 			});
 		}
 	});
@@ -105,6 +106,7 @@
 			$scene?.remove(frustumCuller.getHDMesh());
 			$scene?.remove(frustumCuller.getSDMesh());
 			$scene?.remove(frustumCuller.getLDMesh());
+			if (labelsInScene) $scene?.remove(frustumCuller.getLabels());
 			frustumCuller.dispose();
 		}
 	});

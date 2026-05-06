@@ -1,13 +1,8 @@
 <script>
-	/**
-	 * @typedef {Object} Props
-	 * @property {import('svelte').Snippet} [children]
-	 */
+	import '../app.css';
 
-	/** @type {Props} */
+	/** @type {{ children?: import('svelte').Snippet }} */
 	let { children } = $props();
-	/** @type {import('./$types').PageData} */
-	// export let data;
 </script>
 
 <div class="app">
