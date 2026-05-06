@@ -20,10 +20,10 @@
 
 	/**
 	 * @typedef {Object} Props
-	 * @property {import('$lib/meshes/particles/Particles').Particles} particles
+	 * @property {import('$lib/utils/FrustumCuller').FrustumCuller|undefined} frustumCullerRef
 	 */
 	/** @type {Props} */
-	let { particles } = $props();
+	let { frustumCullerRef } = $props();
 
 	let scene = getScene();
 	let camera = getCamera();
@@ -41,7 +41,6 @@
 	let viewHelper;
 
 	const interactionRaycaster = new THREE.Raycaster();
-	interactionRaycaster.params.Points = { threshold: 5 };
 
 	const renderId = {};
 	const updateId = {};
@@ -51,13 +50,23 @@
 		if (viewHelper) viewHelper.update();
 	};
 
+	/** @return {THREE.Mesh[]} */
+	const getTargetMeshes = () => {
+		if (!frustumCullerRef) return [];
+		return [
+			frustumCullerRef.getHDMesh(),
+			frustumCullerRef.getSDMesh(),
+			frustumCullerRef.getLDMesh()
+		];
+	};
+
 	const handleClick = () => {
 		const cam = $camera;
 		const ctrl = $controls;
 		const m = $mouse;
-		if (!cam || !ctrl || !m) return;
+		if (!cam || !ctrl || !m || !frustumCullerRef) return;
 		interactionRaycaster.setFromCamera(m, cam);
-		const intersects = interactionRaycaster.intersectObject(particles.getMesh());
+		const intersects = interactionRaycaster.intersectObjects(getTargetMeshes());
 		if (intersects.length > 0) {
 			tweenCamera(cam, ctrl, intersects[0].point, 20);
 		}
@@ -108,13 +117,21 @@
 
 			const m = get(mouse);
 			const c = get(camera);
-			if (!m || !c || !hoverLabel) return;
+			if (!m || !c || !hoverLabel || !frustumCullerRef) return;
+
 			interactionRaycaster.setFromCamera(m, c);
-			const intersects = interactionRaycaster.intersectObject(particles.getMesh());
+			const intersects = interactionRaycaster.intersectObjects(getTargetMeshes());
+
 			if (intersects.length > 0) {
-				const idx = intersects[0].index ?? 0;
-				hoverLabel.div.textContent = String(idx);
-				hoverLabel.object.position.copy(intersects[0].point);
+				const hit = intersects[0];
+				const instanceId = hit.instanceId ?? 0;
+				// only HD mesh has label text; SD/LD show instanceId as fallback
+				const label =
+					hit.object === frustumCullerRef.getHDMesh()
+						? frustumCullerRef.getLabelText(instanceId)
+						: String(instanceId);
+				hoverLabel.div.textContent = label;
+				hoverLabel.object.position.copy(hit.point);
 				hoverLabel.object.visible = true;
 				if (rend.domElement) rend.domElement.style.cursor = 'pointer';
 			} else {

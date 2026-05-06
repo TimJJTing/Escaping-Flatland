@@ -21,6 +21,7 @@
 	 * @property {any} groupColors
 	 * @property {boolean} [postprocess]
 	 * @property {undefined|import('sparse-octree').PointOctree<any>} [octree]
+	 * @property {undefined|FrustumCuller} [frustumCullerRef]
 	 */
 
 	/** @type {Props} */
@@ -30,7 +31,8 @@
 		ids,
 		groupColors,
 		postprocess = false,
-		octree = $bindable(undefined)
+		octree = $bindable(undefined),
+		frustumCullerRef = $bindable(undefined)
 	} = $props();
 
 	/** @type {undefined|FrustumCuller} */
@@ -78,6 +80,7 @@
 			octree = buildPointOctree($scene, positions, groups, ids);
 
 			frustumCuller = new FrustumCuller(octree, $camera, 500, 600);
+			frustumCullerRef = frustumCuller;
 			fcHDParticles = frustumCuller.getHDMesh();
 			$scene.add(fcHDParticles);
 

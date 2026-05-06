@@ -284,6 +284,13 @@ export class FrustumCuller {
 	}
 
 	/**
+	 * Returns the label text for an HD-mesh instance (its original data index).
+	 */
+	getLabelText(instanceId: number): string {
+		return this.labelSprites.labels?.[instanceId] ?? String(instanceId);
+	}
+
+	/**
 	 * Updates the cull camera.
 	 */
 

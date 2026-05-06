@@ -16,6 +16,9 @@
 
 	setOptions();
 
+	/** @type {import('$lib/utils/FrustumCuller').FrustumCuller|undefined} */
+	let frustumCullerRef = $state(undefined);
+
 	let optionModalVisible = $state(false);
 
 	const onKeyDown = (/** @type {KeyboardEvent} */ e) => {
@@ -36,6 +39,6 @@
 	<HemisphereLight skyColor={0xffffff} groundColor={0x888888} intensity={3} />
 	<Mesh mesh={particles} />
 	<Mesh mesh={star} postprocess />
-	<ParticleOctree groupColors={palette} {positions} {groups} {ids} postprocess />
-	<InteractionManager {particles} />
+	<ParticleOctree groupColors={palette} {positions} {groups} {ids} postprocess bind:frustumCullerRef />
+	<InteractionManager {frustumCullerRef} />
 </Scene>
