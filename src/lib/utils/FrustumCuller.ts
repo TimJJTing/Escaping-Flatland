@@ -423,6 +423,13 @@ export class FrustumCuller {
 			hdMesh.instanceMatrix.needsUpdate = true;
 			sdMesh.instanceMatrix.needsUpdate = true;
 			ldMesh.instanceMatrix.needsUpdate = true;
+
+			// Recompute bounding volumes so the raycaster's early bounding-sphere
+			// test won't reject the mesh when instances have moved.
+			hdMesh.computeBoundingSphere();
+			sdMesh.computeBoundingSphere();
+			ldMesh.computeBoundingSphere();
+
 			sprites.mesh.count = hdpts;
 			sprites.mesh.instanceMatrix.needsUpdate = true;
 

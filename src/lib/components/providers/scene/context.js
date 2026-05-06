@@ -228,7 +228,7 @@ export function setOptions() {
 	const options = writable({
 		labelsEnabled: true,
 		viewHelperEnabled: true,
-		autoRotateEnabled: true
+		autoRotateEnabled: false
 	});
 	setContext('options', options);
 	return options;

@@ -187,7 +187,7 @@
 				$postprocessor = new SelectiveBloom($renderer, $scene, $camera, BLOOM_LAYER);
 
 				$controls = new OrbitControls($camera, $renderer.domElement);
-				$controls.autoRotate = true;
+				$controls.autoRotate = false;
 				$controls.autoRotateSpeed = 0.5;
 				$controls.minDistance = 3;
 				$controls.maxDistance = 24000;
@@ -236,13 +236,14 @@
 			const animate = () => {
 				requestAnimationFrame(animate);
 
+				if ($controls) {
+					$controls.update();
+				}
+
 				// execute update functions
 				$funcPipelines.updatePipeline?.forEach((updateFunc) => {
 					updateFunc();
 				});
-				if ($controls) {
-					$controls.update();
-				}
 
 				// solarSystem.update();
 
