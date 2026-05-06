@@ -1,10 +1,17 @@
 <script>
+	/**
+	 * @typedef {Object} Props
+	 * @property {import('svelte').Snippet} [children]
+	 */
+
+	/** @type {Props} */
+	let { children } = $props();
 	/** @type {import('./$types').PageData} */
 	// export let data;
 </script>
 
 <div class="app">
-	<slot />
+	{@render children?.()}
 </div>
 
 <style>

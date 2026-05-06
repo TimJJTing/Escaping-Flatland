@@ -1,4 +1,6 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	import { onMount, onDestroy } from 'svelte';
 	import {
 		getScene,
@@ -10,21 +12,29 @@
 	import { FrustumCuller } from '$lib/utils/FrustumCuller';
 	import { usePostProcessor } from '../utils';
 
-	export let positions;
-	export let groups;
-	export let ids;
-	export let groupColors;
 
-	/**
-	 * add to postprocess?
-	 * @type {boolean}
-	 */
-	export let postprocess = false;
+	
 
+	
 	/**
-	 * @type {undefined|import('sparse-octree').PointOctree<any>}
+	 * @typedef {Object} Props
+	 * @property {any} positions
+	 * @property {any} groups
+	 * @property {any} ids
+	 * @property {any} groupColors
+	 * @property {boolean} [postprocess] - add to postprocess?
+	 * @property {undefined|import('sparse-octree').PointOctree<any>} [octree]
 	 */
-	export let octree = undefined;
+
+	/** @type {Props} */
+	let {
+		positions,
+		groups,
+		ids,
+		groupColors,
+		postprocess = false,
+		octree = $bindable(undefined)
+	} = $props();
 
 	/**
 	 * @type {undefined|FrustumCuller}
@@ -33,15 +43,15 @@
 	/**
 	 * @type {import('three').Mesh|undefined}
 	 */
-	let fcHDParticles = undefined;
+	let fcHDParticles = $state(undefined);
 	/**
 	 * @type {import('three').Mesh|undefined}
 	 */
-	let fcSDParticles;
+	let fcSDParticles = $state();
 	/**
 	 * @type {import('three').Mesh|undefined}
 	 */
-	let fcLDParticles;
+	let fcLDParticles = $state();
 
 	let id = {};
 	let scene = getScene();
@@ -49,9 +59,15 @@
 	let funcPipelines = getFuncPipelines();
 	let postprocessor = getPostprocessor();
 
-	$: usePostProcessor(postprocess, $postprocessor, fcHDParticles);
-	$: usePostProcessor(postprocess, $postprocessor, fcSDParticles);
-	$: usePostProcessor(postprocess, $postprocessor, fcLDParticles);
+	run(() => {
+		usePostProcessor(postprocess, $postprocessor, fcHDParticles);
+	});
+	run(() => {
+		usePostProcessor(postprocess, $postprocessor, fcSDParticles);
+	});
+	run(() => {
+		usePostProcessor(postprocess, $postprocessor, fcLDParticles);
+	});
 
 	onMount(() => {
 		// add mesh into scene

@@ -1,10 +1,12 @@
-<script context="module">
+<script module>
 	export const RAYCAST_LAYER = 1;
 	export const BLOOM_LAYER = 2;
 	export const COLLAPSE_SCALE = 0.0001;
 </script>
 
 <script>
+	import { run } from 'svelte/legacy';
+
 	import * as THREE from 'three';
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 	import Stats from 'three/addons/libs/stats.module.js';
@@ -23,15 +25,20 @@
 		setPostprocessor
 	} from './context';
 
+	
 	/**
-	 * @type {boolean}
+	 * @typedef {Object} Props
+	 * @property {boolean} [stats]
+	 * @property {import('svelte').Snippet} [children]
 	 */
-	export let stats = false;
+
+	/** @type {Props} */
+	let { stats = false, children } = $props();
 
 	/**
 	 * @type {HTMLDivElement}
 	 */
-	let container;
+	let container = $state();
 
 	/**
 	 * @type {Stats|undefined}
@@ -133,7 +140,9 @@
 		}
 	};
 
-	$: useStats(stats, container);
+	run(() => {
+		useStats(stats, container);
+	});
 
 	onMount(() => {
 		if (browser) {
@@ -277,7 +286,7 @@
 
 <div id="container" bind:this={container}>
 	{#if $sceneReady}
-		<slot />
+		{@render children?.()}
 	{/if}
 </div>
 
