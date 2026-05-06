@@ -1,5 +1,5 @@
 <script>
-	import { run } from 'svelte/legacy';
+
 	import { onMount, onDestroy } from 'svelte';
 	import { get } from 'svelte/store';
 	import * as THREE from 'three';
@@ -72,7 +72,7 @@
 		}
 	};
 
-	run(() => {
+	$effect(() => {
 		const enabled = $options.viewHelperEnabled;
 		const cam = $camera;
 		const rend = $renderer;
@@ -87,8 +87,9 @@
 		}
 	});
 
-	run(() => {
-		if ($controls) $controls.autoRotate = $options.autoRotateEnabled;
+	$effect(() => {
+		const ctrl = get(controls);
+		if (ctrl) ctrl.autoRotate = $options.autoRotateEnabled;
 	});
 
 	onMount(() => {

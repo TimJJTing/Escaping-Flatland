@@ -5,7 +5,6 @@
 </script>
 
 <script>
-	import { run } from 'svelte/legacy';
 
 	import * as THREE from 'three';
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -140,7 +139,7 @@
 		}
 	};
 
-	run(() => {
+	$effect(() => {
 		useStats(stats, container);
 	});
 

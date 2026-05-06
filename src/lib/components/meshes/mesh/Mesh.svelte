@@ -1,5 +1,5 @@
 <script>
-	import { run } from 'svelte/legacy';
+
 
 	import { onMount, onDestroy } from 'svelte';
 	import {
@@ -30,10 +30,10 @@
 	let funcPipelines = getFuncPipelines();
 	let postprocessor = getPostprocessor();
 
-	run(() => {
+	$effect(() => {
 		useRaycast(raycast, mesh?.getMesh());
 	});
-	run(() => {
+	$effect(() => {
 		usePostProcessor(postprocess, $postprocessor, mesh?.getMesh());
 	});
 

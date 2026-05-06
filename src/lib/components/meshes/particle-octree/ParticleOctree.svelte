@@ -1,5 +1,4 @@
 <script>
-	import { run } from 'svelte/legacy';
 
 	import { onMount, onDestroy } from 'svelte';
 	import {
@@ -53,17 +52,17 @@
 	let postprocessor = getPostprocessor();
 	let options = getOptions();
 
-	run(() => {
+	$effect(() => {
 		usePostProcessor(postprocess, $postprocessor, fcHDParticles);
 	});
-	run(() => {
+	$effect(() => {
 		usePostProcessor(postprocess, $postprocessor, fcSDParticles);
 	});
-	run(() => {
+	$effect(() => {
 		usePostProcessor(postprocess, $postprocessor, fcLDParticles);
 	});
 
-	run(() => {
+	$effect(() => {
 		if (!frustumCuller || !$scene) return;
 		const labelMesh = frustumCuller.getLabels();
 		if ($options.labelsEnabled && !labelsInScene) {
