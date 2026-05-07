@@ -126,11 +126,7 @@
 			if (intersects.length > 0) {
 				const hit = intersects[0];
 				const instanceId = hit.instanceId ?? 0;
-				// only HD mesh has label text; SD/LD show instanceId as fallback
-				const label =
-					hit.object === frustumCullerRef.getHDMesh()
-						? frustumCullerRef.getLabelText(instanceId)
-						: String(instanceId);
+				const label = frustumCullerRef.getIdAt(hit.object, instanceId) ?? String(instanceId);
 				hoverLabel.div.textContent = label;
 				hoverLabel.object.position.copy(hit.point);
 				hoverLabel.object.visible = true;

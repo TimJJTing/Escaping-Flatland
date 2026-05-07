@@ -137,6 +137,10 @@ export class InstancedLabelSprites {
 		if (this.labels) this.labels[index] = str;
 	}
 
+	clearLabels() {
+		if (this.labels) this.labels.fill('');
+	}
+
 	update() {
 		this.material.uniforms.uMarkerTexture.value = this._getMarkerTexture(
 			this._textureDimensions.x,
