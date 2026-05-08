@@ -68,6 +68,10 @@ export class SolarSystem {
 		this.group.visible = v;
 	}
 
+	get visible() {
+		return this.group.visible;
+	}
+
 	/**
 	 * @param v {boolean}
 	 */

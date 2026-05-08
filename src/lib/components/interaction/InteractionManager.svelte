@@ -15,7 +15,8 @@
 		getRenderer,
 		getMouse,
 		getFuncPipelines,
-		getOptions
+		getOptions,
+		getSelectedPoint
 	} from '$lib/components/providers/scene';
 
 	/**
@@ -32,6 +33,7 @@
 	let mouse = getMouse();
 	let funcPipelines = getFuncPipelines();
 	let options = getOptions();
+	let selectedPoint = getSelectedPoint();
 
 	/** @type {CSS2DRenderer|undefined} */
 	let labelRenderer;
@@ -68,7 +70,18 @@
 		interactionRaycaster.setFromCamera(m, cam);
 		const intersects = interactionRaycaster.intersectObjects(getTargetMeshes());
 		if (intersects.length > 0) {
-			tweenCamera(cam, ctrl, intersects[0].point, 20);
+			const hit = intersects[0];
+			tweenCamera(cam, ctrl, hit.point, 20);
+
+			const instanceId = hit.instanceId ?? 0;
+			const idStr = frustumCullerRef.getIdAt(hit.object, instanceId);
+			if (idStr !== undefined && selectedPoint) {
+				const starIndex = Number(idStr);
+				const mat = new THREE.Matrix4();
+				/** @type {import('three').InstancedMesh} */ (hit.object).getMatrixAt(instanceId, mat);
+				const worldPosition = new THREE.Vector3().setFromMatrixPosition(mat);
+				selectedPoint.set({ starIndex, worldPosition });
+			}
 		}
 	};
 

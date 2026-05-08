@@ -218,6 +218,7 @@ export function getFuncPipelines() {
  * @property {boolean} labelsEnabled
  * @property {boolean} viewHelperEnabled
  * @property {boolean} autoRotateEnabled
+ * @property {string} dataSourceId
  */
 
 /**
@@ -228,7 +229,8 @@ export function setOptions() {
 	const options = writable({
 		labelsEnabled: true,
 		viewHelperEnabled: true,
-		autoRotateEnabled: false
+		autoRotateEnabled: false,
+		dataSourceId: 'random'
 	});
 	setContext('options', options);
 	return options;
@@ -239,4 +241,27 @@ export function setOptions() {
  */
 export function getOptions() {
 	return getContext('options');
+}
+
+/**
+ * @typedef {Object} SelectedPoint
+ * @property {number} starIndex
+ * @property {import('three').Vector3} worldPosition
+ */
+
+/**
+ * @return {import('svelte/store').Writable<SelectedPoint|null>}
+ */
+export function setSelectedPoint() {
+	/** @type {import('svelte/store').Writable<SelectedPoint|null>} */
+	const selectedPoint = writable(null);
+	setContext('selectedPoint', selectedPoint);
+	return selectedPoint;
+}
+
+/**
+ * @return {import('svelte/store').Writable<SelectedPoint|null>}
+ */
+export function getSelectedPoint() {
+	return getContext('selectedPoint');
 }
