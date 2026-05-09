@@ -152,7 +152,7 @@
 				const instanceId = hit.instanceId ?? 0;
 				const label = frustumCullerRef.getIdAt(hit.object, instanceId) ?? String(instanceId);
 				hoverLabel.div.textContent = label;
-				hoverLabel.object.position.copy(hit.point).add(new THREE.Vector3(0, 1, 0));
+				hoverLabel.object.position.copy(hit.point);
 				hoverLabel.object.visible = true;
 				if (rend.domElement) rend.domElement.style.cursor = 'pointer';
 			} else {
