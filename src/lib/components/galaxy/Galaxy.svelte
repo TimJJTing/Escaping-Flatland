@@ -19,6 +19,9 @@
 	import { InteractionManager } from '$lib/components/interaction';
 	import OptionModal from '$lib/components/modals/option/OptionModal.svelte';
 	import { palette, DATA_SOURCES } from '$lib/utils';
+	import { Settings } from '@lucide/svelte';
+	import { toast } from 'svelte-sonner';
+	import { getParticleOptions } from '$lib/components/providers/scene';
 
 	// set* must be called before children mount so context is available
 	setDataOptions();
@@ -27,6 +30,7 @@
 	const selectedPoint = setSelectedPoint();
 	const dataOptions = getDataOptions();
 	const sceneOptions = getSceneOptions();
+	const particleOptions = getParticleOptions();
 
 	// Reactive data — re-generates only when dataSourceId changes
 	let starData = $derived.by(() => {
@@ -54,6 +58,8 @@
 	$effect(() => {
 		const id = $dataOptions.dataSourceId;
 		if (id !== prevDataSourceId) {
+			const label = DATA_SOURCES.find((s) => s.id === id)?.label ?? id;
+			toast(`Data Source: ${label}`);
 			prevDataSourceId = id;
 			selectedPoint.set(null);
 		}
@@ -96,6 +102,31 @@
 
 	let optionModalVisible = $state(false);
 
+	let prevScene = { ...$sceneOptions };
+	let prevParticle = { ...$particleOptions };
+
+	$effect(() => {
+		const opts = $sceneOptions;
+		if (opts.autoRotateEnabled !== prevScene.autoRotateEnabled)
+			toast(`Auto Rotate: ${opts.autoRotateEnabled ? 'On' : 'Off'}`);
+		if (opts.viewHelperEnabled !== prevScene.viewHelperEnabled)
+			toast(`View Helper: ${opts.viewHelperEnabled ? 'On' : 'Off'}`);
+		if (opts.blooming !== prevScene.blooming)
+			toast(`Blooming: ${opts.blooming ? 'On' : 'Off'}`);
+		if (opts.debugModeEnabled !== prevScene.debugModeEnabled)
+			toast(`Debug Mode: ${opts.debugModeEnabled ? 'On' : 'Off'}`);
+		prevScene = { ...opts };
+	});
+
+	$effect(() => {
+		const opts = $particleOptions;
+		if (opts.labelsEnabled !== prevParticle.labelsEnabled)
+			toast(`Labels: ${opts.labelsEnabled ? 'On' : 'Off'}`);
+		if (opts.octantHelperEnabled !== prevParticle.octantHelperEnabled)
+			toast(`Octant Helper: ${opts.octantHelperEnabled ? 'On' : 'Off'}`);
+		prevParticle = { ...opts };
+	});
+
 	const onKeyDown = (/** @type {KeyboardEvent} */ e) => {
 		if (e.key === 'o' || e.key === 'O') optionModalVisible = !optionModalVisible;
 	};
@@ -109,6 +140,14 @@
 </script>
 
 <OptionModal bind:visible={optionModalVisible} />
+
+<button
+	class="fixed right-2 bottom-4 z-50 p-2 rounded-full bg-[#1a1a1f]/80 border border-[#333] text-white hover:bg-[#2a2a2f]/90 transition-colors"
+	onclick={() => (optionModalVisible = !optionModalVisible)}
+	aria-label="Options"
+>
+	<Settings size={20} />
+</button>
 
 <Scene stats={$sceneOptions.debugModeEnabled}>
 	<HemisphereLight skyColor={0xffffff} groundColor={0x888888} intensity={3} />

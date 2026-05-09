@@ -1,5 +1,6 @@
 <script>
 	import '../app.css';
+	import { Toaster } from '$lib/components/ui/sonner';
 
 	/** @type {{ children?: import('svelte').Snippet }} */
 	let { children } = $props();
@@ -7,6 +8,7 @@
 
 <div class="app">
 	{@render children?.()}
+	<Toaster position="bottom-center" theme="dark" />
 </div>
 
 <style>

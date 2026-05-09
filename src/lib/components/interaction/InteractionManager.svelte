@@ -77,6 +77,9 @@
 			const idStr = frustumCullerRef.getIdAt(hit.object, instanceId);
 			if (idStr !== undefined && selectedPoint) {
 				const starIndex = Number(idStr);
+				// do not update selectedPoint it is the same id
+				if (starIndex === $selectedPoint?.starIndex) return;
+				
 				const mat = new THREE.Matrix4();
 				/** @type {import('three').InstancedMesh} */ (hit.object).getMatrixAt(instanceId, mat);
 				const worldPosition = new THREE.Vector3().setFromMatrixPosition(mat);
@@ -102,7 +105,15 @@
 
 	$effect(() => {
 		const ctrl = get(controls);
-		if (ctrl) ctrl.autoRotate = $sceneOptions.autoRotateEnabled;
+		if (!ctrl) return;
+		ctrl.autoRotate = $sceneOptions.autoRotateEnabled;
+
+		const disable = () => {
+			if (!$sceneOptions.autoRotateEnabled) return;
+			$sceneOptions.autoRotateEnabled = false;
+		};
+		ctrl.addEventListener('start', disable);
+		return () => ctrl.removeEventListener('start', disable);
 	});
 
 	onMount(() => {
@@ -141,7 +152,7 @@
 				const instanceId = hit.instanceId ?? 0;
 				const label = frustumCullerRef.getIdAt(hit.object, instanceId) ?? String(instanceId);
 				hoverLabel.div.textContent = label;
-				hoverLabel.object.position.copy(hit.point);
+				hoverLabel.object.position.copy(hit.point).add(new THREE.Vector3(0, 1, 0));
 				hoverLabel.object.visible = true;
 				if (rend.domElement) rend.domElement.style.cursor = 'pointer';
 			} else {
