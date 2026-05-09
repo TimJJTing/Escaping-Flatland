@@ -15,7 +15,7 @@
 		getRenderer,
 		getMouse,
 		getFuncPipelines,
-		getOptions,
+		getSceneOptions,
 		getSelectedPoint
 	} from '$lib/components/providers/scene';
 
@@ -32,7 +32,7 @@
 	let renderer = getRenderer();
 	let mouse = getMouse();
 	let funcPipelines = getFuncPipelines();
-	let options = getOptions();
+	let sceneOptions = getSceneOptions();
 	let selectedPoint = getSelectedPoint();
 
 	/** @type {CSS2DRenderer|undefined} */
@@ -86,7 +86,7 @@
 	};
 
 	$effect(() => {
-		const enabled = $options.viewHelperEnabled;
+		const enabled = $sceneOptions.viewHelperEnabled;
 		const cam = $camera;
 		const rend = $renderer;
 		const ctrl = $controls;
@@ -102,7 +102,7 @@
 
 	$effect(() => {
 		const ctrl = get(controls);
-		if (ctrl) ctrl.autoRotate = $options.autoRotateEnabled;
+		if (ctrl) ctrl.autoRotate = $sceneOptions.autoRotateEnabled;
 	});
 
 	onMount(() => {
@@ -121,7 +121,7 @@
 
 		hoverLabel = addLabel(scn);
 
-		if ($options.viewHelperEnabled) {
+		if ($sceneOptions.viewHelperEnabled) {
 			viewHelper = new ViewHelper(cam, rend, 'bottom-left');
 			if (ctrl) viewHelper.setControls(ctrl);
 		}

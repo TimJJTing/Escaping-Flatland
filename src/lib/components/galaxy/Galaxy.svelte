@@ -1,11 +1,14 @@
 <script>
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy, untrack } from 'svelte';
 	import * as THREE from 'three';
 	import {
 		Scene,
-		setOptions,
+		setDataOptions,
+		getDataOptions,
+		setParticleOptions,
+		setSceneOptions,
+		getSceneOptions,
 		setSelectedPoint,
-		getOptions
 	} from '$lib/components/providers/scene';
 	import { Particles } from '$lib/meshes/particles';
 	import { Star } from '$lib/meshes/star';
@@ -17,14 +20,17 @@
 	import OptionModal from '$lib/components/modals/option/OptionModal.svelte';
 	import { palette, DATA_SOURCES } from '$lib/utils';
 
-	// setOptions and setSelectedPoint must be called before children mount
-	setOptions();
+	// set* must be called before children mount so context is available
+	setDataOptions();
+	setParticleOptions();
+	setSceneOptions();
 	const selectedPoint = setSelectedPoint();
-	const options = getOptions();
+	const dataOptions = getDataOptions();
+	const sceneOptions = getSceneOptions();
 
-	// Reactive data — re-generates when data source changes
+	// Reactive data — re-generates only when dataSourceId changes
 	let starData = $derived.by(() => {
-		const srcId = $options.dataSourceId;
+		const srcId = $dataOptions.dataSourceId;
 		return (DATA_SOURCES.find((s) => s.id === srcId) ?? DATA_SOURCES[0]).generate(palette);
 	});
 
@@ -44,9 +50,13 @@
 	solarSystem.visible = false;
 
 	// Reset selection when data source changes (avoids stale starIndex)
+	let prevDataSourceId = $dataOptions.dataSourceId;
 	$effect(() => {
-		$options.dataSourceId;
-		selectedPoint.set(null);
+		const id = $dataOptions.dataSourceId;
+		if (id !== prevDataSourceId) {
+			prevDataSourceId = id;
+			selectedPoint.set(null);
+		}
 	});
 
 	// Configure and show solar system on star click
@@ -58,7 +68,8 @@
 		}
 
 		const { starIndex, worldPosition } = sp;
-		const d = starData;
+
+		const d = untrack(() => starData);
 
 		const [r, g, b] = palette[d.groups[starIndex]];
 		solarStar.color = new THREE.Vector3(r / 255, g / 255, b / 255);
@@ -99,11 +110,11 @@
 
 <OptionModal bind:visible={optionModalVisible} />
 
-<Scene stats>
+<Scene stats={$sceneOptions.debugModeEnabled}>
 	<HemisphereLight skyColor={0xffffff} groundColor={0x888888} intensity={3} />
 	<Mesh mesh={star} postprocess />
 	<Mesh mesh={solarSystem} postprocess />
-	{#key $options.dataSourceId}
+	{#key $dataOptions.dataSourceId}
 		<Mesh mesh={particles} />
 		<ParticleOctree
 			groupColors={palette}

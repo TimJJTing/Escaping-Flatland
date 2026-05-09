@@ -178,8 +178,8 @@ export class FrustumCuller {
 			}),
 			this.maxOctantHelperCount
 		);
-		this.octantHelper.visible = true;
-		this.octantHelper.frustumCulled = true;
+		this.octantHelper.visible = false;
+		this.octantHelper.frustumCulled = false;
 		this.hdMesh = new InstancedMesh(
 			new IcosahedronGeometry(1, 2),
 			new MeshPhongMaterial({

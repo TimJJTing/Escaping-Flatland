@@ -21,7 +21,8 @@
 		setSceneReady,
 		setMouse,
 		setRaycaster,
-		setPostprocessor
+		setPostprocessor,
+		getSceneOptions
 	} from './context';
 
 	
@@ -63,6 +64,7 @@
 	let postprocessor = setPostprocessor();
 	let controls = setControls();
 	let funcPipelines = setFuncPipelines();
+	let sceneOptions = getSceneOptions();
 
 	// event listeners
 	const onWindowResize = () => {
@@ -205,7 +207,7 @@
 			};
 
 			const render = () => {
-				if ($postprocessor) {
+				if ($postprocessor && $sceneOptions.blooming) {
 					$postprocessor.render();
 				} else {
 					$renderer?.render($scene, $camera);

@@ -6,7 +6,7 @@
 		getCamera,
 		getFuncPipelines,
 		getPostprocessor,
-		getOptions
+		getParticleOptions
 	} from '$lib/components/providers/scene';
 	import { buildPointOctree } from './buildPointOctree';
 	import { FrustumCuller } from '$lib/utils/FrustumCuller';
@@ -35,7 +35,7 @@
 	} = $props();
 
 	/** @type {undefined|FrustumCuller} */
-	let frustumCuller = undefined;
+	let frustumCuller = $state(undefined);
 	/** @type {import('three').Mesh|undefined} */
 	let fcHDParticles = $state(undefined);
 	/** @type {import('three').Mesh|undefined} */
@@ -43,14 +43,12 @@
 	/** @type {import('three').Mesh|undefined} */
 	let fcLDParticles = $state();
 
-	let labelsInScene = false;
-
 	let id = {};
 	let scene = getScene();
 	let camera = getCamera();
 	let funcPipelines = getFuncPipelines();
 	let postprocessor = getPostprocessor();
-	let options = getOptions();
+	let particleOptions = getParticleOptions();
 
 	$effect(() => {
 		usePostProcessor(postprocess, $postprocessor, fcHDParticles);
@@ -63,15 +61,13 @@
 	});
 
 	$effect(() => {
-		if (!frustumCuller || !$scene) return;
-		const labelMesh = frustumCuller.getLabels();
-		if ($options.labelsEnabled && !labelsInScene) {
-			$scene.add(labelMesh);
-			labelsInScene = true;
-		} else if (!$options.labelsEnabled && labelsInScene) {
-			$scene.remove(labelMesh);
-			labelsInScene = false;
-		}
+		if (!frustumCuller) return;
+		frustumCuller.getLabels().visible = $particleOptions.labelsEnabled;
+	});
+
+	$effect(() => {
+		if (!frustumCuller) return;
+		frustumCuller.getOctantHelper().visible = $particleOptions.octantHelperEnabled;
 	});
 
 	onMount(() => {
@@ -89,10 +85,8 @@
 			fcLDParticles = frustumCuller.getLDMesh();
 			$scene.add(fcLDParticles);
 
-			if ($options.labelsEnabled) {
-				$scene.add(frustumCuller.getLabels());
-				labelsInScene = true;
-			}
+			$scene.add(frustumCuller.getLabels());
+			$scene.add(frustumCuller.getOctantHelper());
 
 			frustumCuller.cull(groupColors);
 
@@ -108,7 +102,8 @@
 			$scene?.remove(frustumCuller.getHDMesh());
 			$scene?.remove(frustumCuller.getSDMesh());
 			$scene?.remove(frustumCuller.getLDMesh());
-			if (labelsInScene) $scene?.remove(frustumCuller.getLabels());
+			$scene?.remove(frustumCuller.getLabels());
+			$scene?.remove(frustumCuller.getOctantHelper());
 			frustumCuller.dispose();
 		}
 	});
