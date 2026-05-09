@@ -22,7 +22,7 @@ export class InstancedLabelSprites {
 		 * @type {string[] | null}
 		 */
 		this.labels = new Array(this.count).fill('');
-		this.offset = new THREE.Vector2(0, 0.5);
+		this.worldOffset = 2.5;
 		this.size = 0.03;
 		this.needsUpdate = false;
 		this._textureDimensions = this.textureResolution.clone().divide(this.labelResolution);
@@ -35,7 +35,7 @@ export class InstancedLabelSprites {
 		this.geometry = new THREE.PlaneGeometry(labelSize.x, labelSize.y);
 		this.material = new THREE.ShaderMaterial({
 			uniforms: {
-				uOffset: { value: this.offset },
+				uWorldOffset: { value: this.worldOffset },
 				uSize: { value: this.size },
 				uMarkerTexture: {
 					value: this._getMarkerTexture(
@@ -48,29 +48,29 @@ export class InstancedLabelSprites {
 				uTextureDimensions: { value: this._textureDimensions }
 			},
 			vertexShader: `
-            uniform vec2 uOffset;
+            uniform float uWorldOffset;
 			uniform vec2 uTextureDimensions;
             uniform float uSize;
-			
+
 			varying vec2 vUv;
-            varying vec3 vPosition;
-			
+
 			void main(){
-              // keep things spritey
               vec4 mvPosition = viewMatrix * modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
-              vec2 offset = vec2(uOffset.x, 200.0 /(-mvPosition.z)*0.215 + uOffset.y);
-              vec2 offsetPosition = position.xy; offsetPosition.xy += offset;
-            
-              mvPosition.xy += offsetPosition.xy * uSize * -mvPosition.z;
-                
+
+              // Offset in camera-up direction (view-space Y = camera up = always screen-up)
+              mvPosition.y += uWorldOffset;
+
+              // Billboard: expand label plane in screen-aligned space (constant screen size)
+              mvPosition.xy += position.xy * uSize * -mvPosition.z;
+
               gl_Position = projectionMatrix * mvPosition;
 			  float iID = float(gl_InstanceID);
-			  float stepW = 1. / uTextureDimensions.x;
-			  float stepH = 1. / uTextureDimensions.y;
-			  
+			  float stepW = 1.0 / uTextureDimensions.x;
+			  float stepH = 1.0 / uTextureDimensions.y;
+
 			  float uvX = mod(iID, uTextureDimensions.x);
 			  float uvY = floor(iID / uTextureDimensions.x);
-			  
+
 			  vUv = (vec2(uvX, uvY) + uv) * vec2(stepW, stepH);
 			}
 		  `,
@@ -81,9 +81,11 @@ export class InstancedLabelSprites {
 			
 			void main(){
 			  vec4 col = texture(uMarkerTexture, vUv);
-			  gl_FragColor = vec4(col.rgb, 1);
+			  gl_FragColor = vec4(col.rgb, col.a);
 			}
-		  `
+		  `,
+			transparent: true,
+			depthWrite: false
 		});
 		this.mesh = new THREE.InstancedMesh(this.geometry, this.material, this.count);
 		// @ts-ignore
@@ -149,7 +151,7 @@ export class InstancedLabelSprites {
 			this.labelResolution.y
 		);
 		if (this.needsUpdate) {
-			this.material.uniforms.uOffset.value = this.offset;
+			this.material.uniforms.uWorldOffset.value = this.worldOffset;
 			this.material.uniforms.uSize.value = this.size;
 		}
 	}

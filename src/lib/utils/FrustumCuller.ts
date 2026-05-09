@@ -445,6 +445,7 @@ export class FrustumCuller {
 
 			sprites.mesh.count = hdpts;
 			sprites.mesh.instanceMatrix.needsUpdate = true;
+			sprites.mesh.computeBoundingSphere();
 
 			// sprites.needsUpdate = true;
 			sprites.update();
