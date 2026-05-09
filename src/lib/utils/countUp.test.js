@@ -33,7 +33,8 @@ describe('animateValue', () => {
 
   it('value at t~0 is close to `from`', () => {
     /** @type {number[]} */ const ticks = [];
-    /** @param {FrameRequestCallback} cb */ const mockRaf = (cb) => { cb(performance.now()); return 1; };
+    let fired = false;
+    /** @param {FrameRequestCallback} cb */ const mockRaf = (cb) => { if (!fired) { fired = true; cb(performance.now() + 1); } return 1; };
     animateValue(10, 20, 2, 400, (v) => ticks.push(parseFloat(v)), mockRaf);
     expect(ticks[0]).toBeCloseTo(10, 0);
   });
