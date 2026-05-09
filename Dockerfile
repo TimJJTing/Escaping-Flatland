@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 COPY .npmrc /app
@@ -11,7 +11,7 @@ ENV VITE_ADAPTER="node"
 RUN npm run build
 RUN npm prune --production
 
-FROM node:20-alpine
+FROM node:24-alpine
 
 RUN adduser -D nodeuser
 RUN mkdir -p /app
