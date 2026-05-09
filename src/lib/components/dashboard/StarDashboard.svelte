@@ -16,9 +16,6 @@
     rotA: '--', rotB: '--', rotC: '--'
   });
 
-  /** @type {Array<() => void>} */
-  let cancelAnims = [];
-
   /**
    * @param {number[]|undefined} arr
    * @param {number} i
@@ -42,11 +39,12 @@
 
   $effect(() => {
     const sp = $selectedPoint;
-    if (!sp) return;
-    const { starIndex } = sp;
+    /** @type {Array<() => void>} */
+    const cancellers = [];
 
-    cancelAnims.forEach((c) => c());
-    cancelAnims = [];
+    if (!sp) return () => {};  // null branch: nothing running, teardown is no-op
+
+    const { starIndex } = sp;
 
     /** @type {Array<{ key: keyof typeof vals, raw: number|null, dec: number }>} */
     const targets = [
@@ -62,10 +60,10 @@
       if (raw == null) { vals[key] = '--'; continue; }
       const from = parseDisplay(vals[key]);
       if (from == null) { vals[key] = raw.toFixed(dec); continue; }
-      cancelAnims.push(animateValue(from, raw, dec, 400, (v) => { vals[key] = v; }));
+      cancellers.push(animateValue(from, raw, dec, 400, (v) => { vals[key] = v; }));
     }
 
-    return () => { cancelAnims.forEach((c) => c()); };
+    return () => { cancellers.forEach((c) => c()); };
   });
 </script>
 
