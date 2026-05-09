@@ -108,7 +108,7 @@ export class InstancedLabelSprites {
 			// ctx.fillStyle = '#000';
 			// ctx.fillRect(0, 0, c.width, c.height);
 
-			ctx.font = `400 ${stepH / 2.5}px "Graphik", "Noto Sans TC", "PingFangTC", "Open Sans", arial, sans-serif`;
+			ctx.font = `400 ${stepH / 2.5}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`;
 			ctx.textBaseline = 'middle';
 			ctx.textAlign = 'center';
 			ctx.fillStyle = '#fff';

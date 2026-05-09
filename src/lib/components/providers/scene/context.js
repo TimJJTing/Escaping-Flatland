@@ -100,7 +100,7 @@ export const { set: setSceneOptions, get: getSceneOptions } =
 	contextStore('sceneOptions', /** @type {SceneOptions} */ ({
 		blooming:          true,
 		viewHelperEnabled: true,
-		autoRotateEnabled: false,
+		autoRotateEnabled: true,
 		debugModeEnabled:  false,
 	}));
 

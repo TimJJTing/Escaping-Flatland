@@ -1,6 +1,8 @@
 <script>
-	import { onMount, onDestroy, untrack } from 'svelte';
 	import * as THREE from 'three';
+	import { onMount, onDestroy, untrack } from 'svelte';
+	import { Settings } from '@lucide/svelte';
+	import { toast } from 'svelte-sonner';
 	import {
 		Scene,
 		setDataOptions,
@@ -17,11 +19,11 @@
 	import { Mesh, ParticleOctree } from '$lib/components/meshes';
 	import { HemisphereLight } from '$lib/components/lights';
 	import { InteractionManager } from '$lib/components/interaction';
-	import OptionModal from '$lib/components/modals/option/OptionModal.svelte';
-	import { palette, DATA_SOURCES } from '$lib/utils';
-	import { Settings } from '@lucide/svelte';
-	import { toast } from 'svelte-sonner';
+	import { OptionModal } from '$lib/components/modals/option';
 	import { getParticleOptions } from '$lib/components/providers/scene';
+	import { LoadingOverlay } from '$lib/components/loading';
+	import { StarDashboard } from '$lib/components/dashboard';
+	import { palette, DATA_SOURCES } from '$lib/utils';
 
 	// set* must be called before children mount so context is available
 	setDataOptions();
@@ -140,6 +142,7 @@
 </script>
 
 <OptionModal bind:visible={optionModalVisible} />
+<StarDashboard {starData} />
 
 <button
 	class="fixed right-2 bottom-4 z-50 p-2 rounded-full bg-[#1a1a1f]/80 border border-[#333] text-white hover:bg-[#2a2a2f]/90 transition-colors"
@@ -148,6 +151,8 @@
 >
 	<Settings size={20} />
 </button>
+
+<LoadingOverlay loading={!frustumCullerRef} />
 
 <Scene stats={$sceneOptions.debugModeEnabled}>
 	<HemisphereLight skyColor={0xffffff} groundColor={0x888888} intensity={3} />
@@ -166,3 +171,4 @@
 	{/key}
 	<InteractionManager {frustumCullerRef} />
 </Scene>
+
