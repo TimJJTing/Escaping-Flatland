@@ -23,6 +23,7 @@ export function animateValue(from, to, decimals, duration, onTick, raf = request
   let rafId = -1;
   let lastNow = -Infinity;
 
+  /** @param {number} now */
   function tick(now) {
     // Guard against tight loops when time doesn't meaningfully advance (< 1ms)
     if (now - lastNow < 1) return;

@@ -18,22 +18,22 @@ describe('animateValue', () => {
   });
 
   it('calls onTick with toFixed(decimals) string at t=1', () => {
-    const ticks = [];
-    const mockRaf = (cb) => { cb(performance.now() + 9999); return 1; };
+    /** @type {string[]} */ const ticks = [];
+    /** @param {FrameRequestCallback} cb */ const mockRaf = (cb) => { cb(performance.now() + 9999); return 1; };
     animateValue(0, 5, 2, 400, (v) => ticks.push(v), mockRaf);
     expect(ticks[0]).toBe('5.00');
   });
 
   it('stops scheduling RAF after t=1', () => {
     let calls = 0;
-    const mockRaf = (cb) => { calls++; cb(performance.now() + 9999); return calls; };
+    /** @param {FrameRequestCallback} cb */ const mockRaf = (cb) => { calls++; cb(performance.now() + 9999); return calls; };
     animateValue(10, 20, 0, 400, () => {}, mockRaf);
     expect(calls).toBe(1);
   });
 
   it('value at t~0 is close to `from`', () => {
-    const ticks = [];
-    const mockRaf = (cb) => { cb(performance.now()); return 1; };
+    /** @type {number[]} */ const ticks = [];
+    /** @param {FrameRequestCallback} cb */ const mockRaf = (cb) => { cb(performance.now()); return 1; };
     animateValue(10, 20, 2, 400, (v) => ticks.push(parseFloat(v)), mockRaf);
     expect(ticks[0]).toBeCloseTo(10, 0);
   });
