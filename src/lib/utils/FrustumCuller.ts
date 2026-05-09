@@ -124,6 +124,10 @@ export class FrustumCuller {
 
 	private labelSprites: InstancedLabelSprites;
 
+	private hdIds: string[] = [];
+	private sdIds: string[] = [];
+	private ldIds: string[] = [];
+
 	/**
 	 * Indicates whether the frustum culling is active.
 	 */
@@ -174,8 +178,8 @@ export class FrustumCuller {
 			}),
 			this.maxOctantHelperCount
 		);
-		this.octantHelper.visible = true;
-		this.octantHelper.frustumCulled = true;
+		this.octantHelper.visible = false;
+		this.octantHelper.frustumCulled = false;
 		this.hdMesh = new InstancedMesh(
 			new IcosahedronGeometry(1, 2),
 			new MeshPhongMaterial({
@@ -284,6 +288,16 @@ export class FrustumCuller {
 	}
 
 	/**
+	 * Returns the underlying data index for an instance of the given mesh.
+	 */
+	getIdAt(mesh: Object3D, instanceId: number): string | undefined {
+		if (mesh === this.hdMesh) return this.hdIds[instanceId];
+		if (mesh === this.sdMesh) return this.sdIds[instanceId];
+		if (mesh === this.ldMesh) return this.ldIds[instanceId];
+		return undefined;
+	}
+
+	/**
 	 * Updates the cull camera.
 	 */
 
@@ -328,6 +342,8 @@ export class FrustumCuller {
 				);
 			});
 			this.time = (performance.now() - t0).toFixed(2) + ' ms';
+			// Clear stale labels from previous frame
+			sprites.clearLabels();
 			let hdpts = 0;
 			let sdpts = 0;
 			let ldpts = 0;
@@ -375,6 +391,8 @@ export class FrustumCuller {
 								let [r, g, b] = groupColors ? groupColors[x.data.data[pidx].group] : [255, 255, 255];
 								tempColor.setStyle(`rgb(${r},${g},${b})`);
 
+								//@ts-ignore
+								const dataId = String(x.data.data[pidx].index);
 								// if it is within the hd distance and not exceeding the max count
 								if (
 									octantContainsHDMesh &&
@@ -386,8 +404,8 @@ export class FrustumCuller {
 									hdMesh.setColorAt(hdpts, tempColor);
 									// add label
 									sprites.mesh.setMatrixAt(hdpts, tempObj.matrix);
-									//@ts-ignore
-									sprites.setLabelAt(hdpts, x.data.data[pidx].plate);
+									sprites.setLabelAt(hdpts, dataId);
+									this.hdIds[hdpts] = dataId;
 									hdpts++;
 								} else if (
 									octantContainsSDMesh &&
@@ -397,10 +415,12 @@ export class FrustumCuller {
 								) {
 									sdMesh.setMatrixAt(sdpts, tempObj.matrix);
 									sdMesh.setColorAt(sdpts, tempColor);
+									this.sdIds[sdpts] = dataId;
 									sdpts++;
 								} else {
 									ldMesh.setMatrixAt(ldpts, tempObj.matrix);
 									ldMesh.setColorAt(ldpts, tempColor);
+									this.ldIds[ldpts] = dataId;
 									ldpts++;
 								}
 							}
@@ -416,8 +436,16 @@ export class FrustumCuller {
 			hdMesh.instanceMatrix.needsUpdate = true;
 			sdMesh.instanceMatrix.needsUpdate = true;
 			ldMesh.instanceMatrix.needsUpdate = true;
+
+			// Recompute bounding volumes so the raycaster's early bounding-sphere
+			// test won't reject the mesh when instances have moved.
+			hdMesh.computeBoundingSphere();
+			sdMesh.computeBoundingSphere();
+			ldMesh.computeBoundingSphere();
+
 			sprites.mesh.count = hdpts;
 			sprites.mesh.instanceMatrix.needsUpdate = true;
+			sprites.mesh.computeBoundingSphere();
 
 			// sprites.needsUpdate = true;
 			sprites.update();

@@ -1,10 +1,14 @@
 <script>
-	/** @type {import('./$types').PageData} */
-	// export let data;
+	import '../app.css';
+	import { Toaster } from '$lib/components/ui/sonner';
+
+	/** @type {{ children?: import('svelte').Snippet }} */
+	let { children } = $props();
 </script>
 
 <div class="app">
-	<slot />
+	{@render children?.()}
+	<Toaster position="bottom-center" theme="dark" />
 </div>
 
 <style>

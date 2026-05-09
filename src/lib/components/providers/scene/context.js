@@ -1,214 +1,116 @@
 import { getContext, setContext } from 'svelte';
 import { writable } from 'svelte/store';
 
-/**
- * @return {import('svelte/store').Writable<undefined|null|import('three').Scene>}
- */
-export function setScene() {
-	/**
-	 * @type {import('svelte/store').Writable<undefined|null|import('three').Scene>}
-	 */
-	let scene = writable(undefined);
-	setContext('scene', scene);
-	return scene;
-}
-/**
- * @return {import('svelte/store').Writable<undefined|null|import('three').Scene>}
- */
-export function getScene() {
-	return getContext('scene');
-}
+// ---------------------------------------------------------------------------
+// Factory
+// ---------------------------------------------------------------------------
 
 /**
- * @return {import('svelte/store').Writable<undefined|null|import('three').PerspectiveCamera>}
+ * @template T
+ * @param {string} key
+ * @param {T} initial
+ * @returns {{ set: () => import('svelte/store').Writable<T>, get: () => import('svelte/store').Writable<T> }}
  */
-export function setCamera() {
-	/**
-	 * @type {import('svelte/store').Writable<undefined|null|import('three').PerspectiveCamera>}
-	 */
-	let camera = writable(undefined);
-	setContext('camera', camera);
-	return camera;
-}
-/**
- * @return {import('svelte/store').Writable<undefined|null|import('three').PerspectiveCamera>}
- */
-export function getCamera() {
-	return getContext('camera');
+function contextStore(key, initial) {
+	return {
+		set: () => { const s = writable(initial); setContext(key, s); return s; },
+		get: () => getContext(key),
+	};
 }
 
-/**
- * @return {import('svelte/store').Writable<undefined|null|import('$lib/utils/SelectiveBloom').SelectiveBloom>}
- */
-export function setPostprocessor() {
-	/**
-	 * @type {import('svelte/store').Writable<undefined|null|import('$lib/utils/SelectiveBloom').SelectiveBloom>}
-	 */
-	let postprocessor = writable(undefined);
-	setContext('postprocessor', postprocessor);
-	return postprocessor;
-}
-/**
- * @return {import('svelte/store').Writable<undefined|null|import('$lib/utils/SelectiveBloom').SelectiveBloom>}
- */
-export function getPostprocessor() {
-	return getContext('postprocessor');
-}
+// ---------------------------------------------------------------------------
+// Three.js primitives  (initialized by Scene.svelte, read-only elsewhere)
+// ---------------------------------------------------------------------------
 
-/**
- * @return {import('svelte/store').Writable<undefined|null|import('three/addons/controls/OrbitControls.js').OrbitControls>}
- */
-export function setControls() {
-	/**
-	 * @type {import('svelte/store').Writable<undefined|null|import('three/addons/controls/OrbitControls.js').OrbitControls>}
-	 */
-	let controls = writable(undefined);
-	setContext('controls', controls);
-	return controls;
-}
-/**
- * @return {import('svelte/store').Writable<undefined|null|import('three/addons/controls/OrbitControls.js').OrbitControls>}
- */
-export function getControls() {
-	return getContext('controls');
-}
+export const { set: setScene, get: getScene } =
+	contextStore('scene', /** @type {import('three').Scene|undefined} */ (undefined));
 
-/**
- * @return {import('svelte/store').Writable<undefined|null|import('three').Vector2>}
- */
-export function setMouse() {
-	/**
-	 * @type {import('svelte/store').Writable<undefined|null|import('three').Vector2>}
-	 */
-	let mouse = writable(undefined);
-	setContext('mouse', mouse);
-	return mouse;
-}
-/**
- * @return {import('svelte/store').Writable<undefined|null|import('three').Vector2>}
- */
-export function getMouse() {
-	return getContext('mouse');
-}
+export const { set: setCamera, get: getCamera } =
+	contextStore('camera', /** @type {import('three').PerspectiveCamera|undefined} */ (undefined));
 
-/**
- * @return {import('svelte/store').Writable<undefined|null|import('three').Raycaster>}
- */
-export function setRaycaster() {
-	/**
-	 * @type {import('svelte/store').Writable<undefined|null|import('three').Raycaster>}
-	 */
-	let raycaster = writable(undefined);
-	setContext('raycaster', raycaster);
-	return raycaster;
-}
-/**
- * @return {import('svelte/store').Writable<undefined|null|import('three').Raycaster>}
- */
-export function getRaycaster() {
-	return getContext('raycaster');
-}
+export const { set: setRenderer, get: getRenderer } =
+	contextStore('renderer', /** @type {import('three').WebGLRenderer|undefined} */ (undefined));
 
-/**
- * @return {import('svelte/store').Writable<boolean>}
- */
-export function setSceneReady() {
-	/**
-	 * @type {import('svelte/store').Writable<boolean>}
-	 */
-	let sceneReady = writable(false);
-	setContext('sceneReady', sceneReady);
-	return sceneReady;
-}
-/**
- * @return {import('svelte/store').Writable<boolean>}
- */
-export function getSceneReady() {
-	return getContext('sceneReady');
-}
+export const { set: setControls, get: getControls } =
+	contextStore('controls', /** @type {import('three/addons/controls/OrbitControls.js').OrbitControls|undefined} */ (undefined));
 
-/**
- * @return {import('svelte/store').Writable<undefined|null|import('three').WebGLRenderer>}
- */
-export function setRenderer() {
-	/**
-	 * @type {import('svelte/store').Writable<undefined|null|import('three').WebGLRenderer>}
-	 */
-	let renderer = writable(undefined);
-	setContext('renderer', renderer);
-	return renderer;
-}
+export const { set: setMouse, get: getMouse } =
+	contextStore('mouse', /** @type {import('three').Vector2|undefined} */ (undefined));
 
-/**
- * @return {import('svelte/store').Writable<undefined|null|import('three').WebGLRenderer>}
- */
-export function getRenderer() {
-	return getContext('renderer');
-}
+export const { set: setRaycaster, get: getRaycaster } =
+	contextStore('raycaster', /** @type {import('three').Raycaster|undefined} */ (undefined));
 
-/**
- * Function pipelines to run in a render cycle:
- * updatePipeline: update()
- * renderPipeline: render()
- * cameraPipeline: only runs when camera position changes
- */
+export const { set: setPostprocessor, get: getPostprocessor } =
+	contextStore('postprocessor', /** @type {import('$lib/utils/SelectiveBloom').SelectiveBloom|undefined} */ (undefined));
+
+export const { set: setSceneReady, get: getSceneReady } =
+	contextStore('sceneReady', false);
+
+// ---------------------------------------------------------------------------
+// Function pipelines  (update / render / camera — fired each animation frame)
+// ---------------------------------------------------------------------------
+
 export function setFuncPipelines() {
-	const renderPipeline = new Map();
 	const updatePipeline = new Map();
+	const renderPipeline = new Map();
 	const cameraPipeline = new Map();
-	let funcPipelines = writable({
-		/**
-		 * Pipeline to run in update()
-		 * @type {Map<string, function>}
-		 */
+
+	const funcPipelines = writable({
 		updatePipeline,
-		/**
-		 * register a new update function to the pipeline
-		 * @param {any} key
-		 * @param {function} func
-		 */
-		registerUpdateFunc: (key, func) => updatePipeline.set(key, func),
-		/**
-		 * deregister a update function to the pipeline
-		 * @param {any} key
-		 */
-		deregisterUpdateFunc: (key) => updatePipeline.delete(key),
-		/**
-		 * Pipeline to run in render()
-		 * @type {Map<string, function>}
-		 */
+		registerUpdateFunc:   (key, func) => updatePipeline.set(key, func),
+		deregisterUpdateFunc: (key)       => updatePipeline.delete(key),
+
 		renderPipeline,
-		/**
-		 * register a new render function to the pipeline
-		 * @param {any} key
-		 * @param {function} func
-		 */
-		registerRenderFunc: (key, func) => renderPipeline.set(key, func),
-		/**
-		 * deregister a render function to the pipeline
-		 * @param {any} key
-		 */
-		deregisterRenderFunc: (key) => renderPipeline.delete(key),
-		/**
-		 * Pipeline to run on camera changes position
-		 * @type {Map<string, function>}
-		 */
+		registerRenderFunc:   (key, func) => renderPipeline.set(key, func),
+		deregisterRenderFunc: (key)       => renderPipeline.delete(key),
+
 		cameraPipeline,
-		/**
-		 * register a new render function to the pipeline
-		 * @param {any} key
-		 * @param {function} func
-		 */
-		registerCameraFunc: (key, func) => cameraPipeline.set(key, func),
-		/**
-		 * deregister a render function to the pipeline
-		 * @param {any} key
-		 */
-		deregisterCameraFunc: (key) => cameraPipeline.delete(key),
+		registerCameraFunc:   (key, func) => cameraPipeline.set(key, func),
+		deregisterCameraFunc: (key)       => cameraPipeline.delete(key),
 	});
+
 	setContext('funcPipelines', funcPipelines);
 	return funcPipelines;
 }
-export function getFuncPipelines() {
-	return getContext('funcPipelines');
-}
+
+export const getFuncPipelines = () => getContext('funcPipelines');
+
+// ---------------------------------------------------------------------------
+// Options  (namespace stores — one per consumer to prevent cross-reactivity)
+// ---------------------------------------------------------------------------
+
+/**
+ * @typedef {{ dataSourceId: string }} DataOptions
+ * @typedef {{ labelsEnabled: boolean, octantHelperEnabled: boolean }} ParticleOptions
+ * @typedef {{ blooming: boolean, viewHelperEnabled: boolean, autoRotateEnabled: boolean, debugModeEnabled: boolean }} SceneOptions
+ */
+
+export const { set: setDataOptions, get: getDataOptions } =
+	contextStore('dataOptions', /** @type {DataOptions} */ ({
+		dataSourceId: 'random',
+	}));
+
+export const { set: setParticleOptions, get: getParticleOptions } =
+	contextStore('particleOptions', /** @type {ParticleOptions} */ ({
+		labelsEnabled:       true,
+		octantHelperEnabled: false,
+	}));
+
+export const { set: setSceneOptions, get: getSceneOptions } =
+	contextStore('sceneOptions', /** @type {SceneOptions} */ ({
+		blooming:          true,
+		viewHelperEnabled: true,
+		autoRotateEnabled: false,
+		debugModeEnabled:  false,
+	}));
+
+// ---------------------------------------------------------------------------
+// Selection state
+// ---------------------------------------------------------------------------
+
+/**
+ * @typedef {{ starIndex: number, worldPosition: import('three').Vector3 }} SelectedPoint
+ */
+
+export const { set: setSelectedPoint, get: getSelectedPoint } =
+	contextStore('selectedPoint', /** @type {SelectedPoint|null} */ (null));

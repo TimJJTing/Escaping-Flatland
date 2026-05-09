@@ -61,7 +61,7 @@ export class _Star {
 			this.material.uniforms.uDiffRotationCA.value = this.diffRotationCA;
 			this.material.uniforms.uDiffRotationCB.value = this.diffRotationCB;
 			this.material.uniforms.uDiffRotationCC.value = this.diffRotationCC;
-			if (this.light) this.light.color = this.color;
+			if (this.light) this.light.color.set(this.color);
 			this.needsUpdate = false;
 		}
 	}

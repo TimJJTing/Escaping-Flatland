@@ -3,18 +3,18 @@
 	import * as THREE from 'three';
 	import { getScene } from '$lib/components/providers/scene';
 
+	
+	
+	
 	/**
-	 * @type {THREE.ColorRepresentation}
+	 * @typedef {Object} Props
+	 * @property {THREE.ColorRepresentation} skyColor
+	 * @property {THREE.ColorRepresentation} groundColor
+	 * @property {number} intensity
 	 */
-	export let skyColor;
-	/**
-	 * @type {THREE.ColorRepresentation}
-	 */
-	export let groundColor;
-	/**
-	 * @type {number}
-	 */
-	export let intensity;
+
+	/** @type {Props} */
+	let { skyColor, groundColor, intensity } = $props();
 
 	let scene = getScene();
 

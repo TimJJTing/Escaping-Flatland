@@ -1,10 +1,11 @@
-<script context="module">
+<script module>
 	export const RAYCAST_LAYER = 1;
 	export const BLOOM_LAYER = 2;
 	export const COLLAPSE_SCALE = 0.0001;
 </script>
 
 <script>
+
 	import * as THREE from 'three';
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 	import Stats from 'three/addons/libs/stats.module.js';
@@ -20,18 +21,24 @@
 		setSceneReady,
 		setMouse,
 		setRaycaster,
-		setPostprocessor
+		setPostprocessor,
+		getSceneOptions
 	} from './context';
 
+	
 	/**
-	 * @type {boolean}
+	 * @typedef {Object} Props
+	 * @property {boolean} [stats]
+	 * @property {import('svelte').Snippet} [children]
 	 */
-	export let stats = false;
+
+	/** @type {Props} */
+	let { stats = false, children } = $props();
 
 	/**
 	 * @type {HTMLDivElement}
 	 */
-	let container;
+	let container = $state();
 
 	/**
 	 * @type {Stats|undefined}
@@ -57,6 +64,7 @@
 	let postprocessor = setPostprocessor();
 	let controls = setControls();
 	let funcPipelines = setFuncPipelines();
+	let sceneOptions = getSceneOptions();
 
 	// event listeners
 	const onWindowResize = () => {
@@ -133,7 +141,9 @@
 		}
 	};
 
-	$: useStats(stats, container);
+	$effect(() => {
+		useStats(stats, container);
+	});
 
 	onMount(() => {
 		if (browser) {
@@ -178,7 +188,7 @@
 				$postprocessor = new SelectiveBloom($renderer, $scene, $camera, BLOOM_LAYER);
 
 				$controls = new OrbitControls($camera, $renderer.domElement);
-				$controls.autoRotate = true;
+				$controls.autoRotate = false;
 				$controls.autoRotateSpeed = 0.5;
 				$controls.minDistance = 3;
 				$controls.maxDistance = 24000;
@@ -197,7 +207,7 @@
 			};
 
 			const render = () => {
-				if ($postprocessor) {
+				if ($postprocessor && $sceneOptions.blooming) {
 					$postprocessor.render();
 				} else {
 					$renderer?.render($scene, $camera);
@@ -227,13 +237,14 @@
 			const animate = () => {
 				requestAnimationFrame(animate);
 
+				if ($controls) {
+					$controls.update();
+				}
+
 				// execute update functions
 				$funcPipelines.updatePipeline?.forEach((updateFunc) => {
 					updateFunc();
 				});
-				if ($controls) {
-					$controls.update();
-				}
 
 				// solarSystem.update();
 
@@ -277,7 +288,7 @@
 
 <div id="container" bind:this={container}>
 	{#if $sceneReady}
-		<slot />
+		{@render children?.()}
 	{/if}
 </div>
 
