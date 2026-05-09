@@ -3,7 +3,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { get } from 'svelte/store';
 	import * as THREE from 'three';
-	import * as TWEEN from '@tweenjs/tween.js';
+	import { tweenGroup } from '$lib/utils/tweenCamera';
 	import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
 	import { ViewHelper } from '$lib/meshes/view-helper';
 	import { tweenCamera } from '$lib/utils/tweenCamera';
@@ -138,7 +138,7 @@
 		}
 
 		$funcPipelines.registerUpdateFunc(updateId, () => {
-			TWEEN.update();
+			tweenGroup.update();
 
 			const m = get(mouse);
 			const c = get(camera);

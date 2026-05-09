@@ -1,4 +1,6 @@
-import * as TWEEN from '@tweenjs/tween.js';
+import { Tween, Group, Easing } from '@tweenjs/tween.js';
+
+export const tweenGroup = new Group();
 import * as THREE from 'three';
 
 /**
@@ -7,9 +9,9 @@ import * as THREE from 'three';
  * @param {number} duration
  */
 export const setControlsTarget = (controls, target, duration = 2000) => {
-	const changeControlsTarget = new TWEEN.Tween(controls.target)
+	const changeControlsTarget = new Tween(controls.target, tweenGroup)
 		.to({ x: target.x, y: target.y, z: target.z }, duration)
-		.easing(TWEEN.Easing.Quadratic.InOut)
+		.easing(Easing.Quadratic.InOut)
 		.onUpdate(() => {
 			controls.enabled = false;
 		})
@@ -36,9 +38,9 @@ export const setCameraPosition = (camera, controls, target, duration = 2000, dis
 	}
 	if (_position.x === 0 && _position.y === 0 && _position.z === 0) _position.set(1, 1, 1);
 	const position = _position.normalize().multiplyScalar(distance).add(target);
-	const changeCamPosition = new TWEEN.Tween(camera.position)
+	const changeCamPosition = new Tween(camera.position, tweenGroup)
 		.to({ x: position.x, y: position.y, z: position.z }, duration)
-		.easing(TWEEN.Easing.Quadratic.InOut)
+		.easing(Easing.Quadratic.InOut)
 		.onUpdate(() => {
 			controls.enabled = false;
 		})
@@ -71,7 +73,7 @@ export const tweenCamera = (
 	faceOrigin = false,
 	clearPreviousTweens = true
 ) => {
-	if (clearPreviousTweens) TWEEN.removeAll();
+	if (clearPreviousTweens) tweenGroup.removeAll();
 	const tweenTarget = setControlsTarget(controls, target, targetingDuration);
 	let tweenPosition;
 	if (typeof distance === 'number') {
