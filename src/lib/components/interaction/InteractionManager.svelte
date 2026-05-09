@@ -121,7 +121,7 @@
 		const cam = get(camera);
 		const scn = get(scene);
 		const ctrl = get(controls);
-		if (!rend || !cam || !scn) return;
+		if (!rend || !cam || !scn || !ctrl) return;
 
 		labelRenderer = new CSS2DRenderer();
 		labelRenderer.setSize(window.innerWidth, window.innerHeight);
@@ -170,6 +170,9 @@
 
 		rend.domElement.addEventListener('click', handleClick);
 		window.addEventListener('resize', onWindowResize);
+
+		// tween camera zoom-in when everything is mounted/loaded
+		tweenCamera(cam, ctrl, new THREE.Vector3(0), 15, 1000, 2000);
 	});
 
 	onDestroy(() => {

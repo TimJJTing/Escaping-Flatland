@@ -85,7 +85,6 @@
 		if ($postprocessor) {
 			$postprocessor.setSize(width, height);
 		}
-		// labelRenderer.setSize(width, height);
 	};
 
 	const onOrbitCtrlStart = () => {
@@ -167,7 +166,7 @@
 				);
 
 				// @ts-ignore
-				$camera.position.set(10, 10, 10);
+				$camera.position.set(100000, 100000, 100000);
 				$camera.lookAt(0, 0, 0);
 
 				// add renderers
@@ -179,12 +178,6 @@
 				$renderer.toneMappingExposure = 0.2;
 				container.appendChild($renderer.domElement);
 
-				// labelRenderer = new CSS2DRenderer();
-				// labelRenderer.setSize(window.innerWidth, window.innerHeight);
-				// labelRenderer.domElement.style.position = 'absolute';
-				// labelRenderer.domElement.style.top = '0px';
-				// labelRenderer.domElement.style.pointerEvents = 'none';
-				// container.appendChild(labelRenderer.domElement);
 				$postprocessor = new SelectiveBloom($renderer, $scene, $camera, BLOOM_LAYER);
 
 				$controls = new OrbitControls($camera, $renderer.domElement);
@@ -218,12 +211,6 @@
 					renderFunc();
 				});
 
-				// Render labels
-				// labelRenderer.render(scene, camera);
-
-				// view helper
-				// if (viewHelper) viewHelper.render();
-
 				// update render info for debug mode
 				// if ($option.debugModeEnabled) $renderInfo = { ...renderer.info.render };
 
@@ -246,17 +233,9 @@
 					updateFunc();
 				});
 
-				// solarSystem.update();
-
-				// points.update();
-
 				if (stats && statsElement) {
 					statsElement.update();
 				}
-
-				// if (mouseInteraction) {
-				// 	handleMouseInteraction(raycaster, camera, mouse);
-				// }
 
 				render();
 			};
@@ -279,9 +258,6 @@
 				$controls.removeEventListener('start', onOrbitCtrlStart);
 				$controls.removeEventListener('end', onOrbitCtrlEnd);
 			}
-			// if (labelSprites) {
-			// 	labelSprites.dispose();
-			// }
 		}
 	});
 </script>
