@@ -14,7 +14,7 @@ Try [the live demo](https://escaping-flatland.netlify.app)!
 
 ## Implementation Detail
 
-See [the article](https://jtingjiang.com/works/escaping-flatland)
+Read [the article](https://jtingjiang.com/works/escaping-flatland)
 
 ## Developing
 
