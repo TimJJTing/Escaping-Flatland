@@ -1,7 +1,7 @@
 <script>
 	import * as THREE from 'three';
 	import { onMount, onDestroy, untrack } from 'svelte';
-	import { Settings } from '@lucide/svelte';
+	import { Settings, CircleQuestionMark } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import {
 		Scene,
@@ -20,6 +20,7 @@
 	import { HemisphereLight } from '$lib/components/lights';
 	import { InteractionManager } from '$lib/components/interaction';
 	import { OptionModal } from '$lib/components/modals/option';
+	import { HelpModal } from '$lib/components/modals/help';
 	import { getParticleOptions } from '$lib/components/providers/scene';
 	import { LoadingOverlay } from '$lib/components/loading';
 	import { StarDashboard } from '$lib/components/dashboard';
@@ -103,6 +104,7 @@
 	let frustumCullerRef = $state(undefined);
 
 	let optionModalVisible = $state(false);
+	let helpModalVisible = $state(false);
 
 	let prevScene = { ...$sceneOptions };
 	let prevParticle = { ...$particleOptions };
@@ -142,7 +144,16 @@
 </script>
 
 <OptionModal bind:visible={optionModalVisible} />
+<HelpModal bind:visible={helpModalVisible} />
 <StarDashboard {starData} />
+
+<button
+	class="fixed right-2 top-4 z-50 p-2 rounded-full bg-[#1a1a1f]/80 border border-[#333] text-white hover:bg-[#2a2a2f]/90 transition-colors"
+	onclick={() => (helpModalVisible = !helpModalVisible)}
+	aria-label="Help"
+>
+	<CircleQuestionMark size={20} />
+</button>
 
 <button
 	class="fixed right-2 bottom-4 z-50 p-2 rounded-full bg-[#1a1a1f]/80 border border-[#333] text-white hover:bg-[#2a2a2f]/90 transition-colors"

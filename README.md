@@ -48,7 +48,7 @@ src/lib/
 │   ├── providers/scene/  # Three.js scene, camera, renderer, and OrbitControls - as context
 │   ├── meshes/           # Interface to use Three.js meshes as Svelte components
 │   ├── dashboard/        # StarDashboard — selected-star info panel
-│   ├── modals/           # OptionModal — settings dialog
+│   ├── modals/           # OptionModal & HelpModal — dialogs
 │   ├── loading/          # LoadingOverlay — splash screen
 │   ├── ui                # components from shadcn-svelte
 │   └── interaction/      # Mouse raycasting, hover labels, camera tween
