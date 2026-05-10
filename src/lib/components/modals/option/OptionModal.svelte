@@ -16,12 +16,12 @@
 </script>
 
 <Dialog.Root bind:open={visible}>
-	<Dialog.Content class="w-[600px] bg-[#1a1a1f] border-[#333] text-white">
+	<Dialog.Content class="w-150 h-80 bg-[#1a1a1f] border-[#333] text-white grid-rows-[auto_1fr]">
 		<Dialog.Header >
 			<Dialog.Title >Options</Dialog.Title>
 		</Dialog.Header>
 
-		<Tabs.Root value="general" >
+		<Tabs.Root value="general">
 			<Tabs.List class="bg-[#2a2a2f]">
 				<Tabs.Trigger value="general">General</Tabs.Trigger>
 				<Tabs.Trigger value="visual">Visual</Tabs.Trigger>

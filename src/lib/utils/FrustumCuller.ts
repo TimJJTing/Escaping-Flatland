@@ -174,7 +174,8 @@ export class FrustumCuller {
 			new MeshBasicMaterial({
 				transparent: true,
 				color: 0xccff00,
-				opacity: 0.2
+				opacity: 0.2,
+				wireframe: true
 			}),
 			this.maxOctantHelperCount
 		);

@@ -12,9 +12,13 @@ This project demonstrates optimization techniques for plotting large datasets in
 
 Try [the live demo](https://escaping-flatland.netlify.app)!
 
+## Implementation Detail
+
+Read [the article](https://jtingjiang.com/works/escaping-flatland)
+
 ## Developing
 
-1. Under the project root, make sure you're running node 20 or run `nvm use` if you have nvm installed.
+1. Under the project root, make sure you're running node 24 or run `nvm use` if you have nvm installed.
 2. Install dependencies with `npm install` (or `pnpm install` or `yarn`)
 3. Start a development server:
 
@@ -58,11 +62,3 @@ You can preview the production build with `npm run preview`.
     docker rm escaping
     docker rmi escaping_flatland
     ```
-
-## To-do list
-
-- [x] implement scene/canvas component
-- [x] implement mesh component
-- [x] add some mock data
-- [x] implement frustum culler
-- [ ] deploy onto a hosting service provider
