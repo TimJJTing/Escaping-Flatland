@@ -1,19 +1,11 @@
 <script>
-
-
 	import { onMount, onDestroy } from 'svelte';
 	import {
-		RAYCAST_LAYER,
 		getScene,
 		getFuncPipelines,
 		getPostprocessor
 	} from '$lib/components/providers/scene';
 	import { usePostProcessor, useRaycast } from '../utils';
-
-	
-
-	
-
 	
 	/**
 	 * @typedef {Object} Props

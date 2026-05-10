@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { Vector3, Box3 } from 'three';
 import { PointOctree } from 'sparse-octree';
 
 /**
@@ -10,8 +10,8 @@ import { PointOctree } from 'sparse-octree';
  * @returns {PointOctree<any>} octree
  */
 export const buildPointOctree = (scene, positions, groups, ids) => {
-	const v = new THREE.Vector3();
-	const bbox = new THREE.Box3();
+	const v = new Vector3();
+	const bbox = new Box3();
 	bbox.setFromObject(scene);
 
 	const octree = new PointOctree(bbox.min, bbox.max, 0.0, 8, 5);

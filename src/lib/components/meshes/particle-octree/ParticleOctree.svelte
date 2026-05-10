@@ -1,5 +1,4 @@
 <script>
-
 	import { onMount, onDestroy } from 'svelte';
 	import {
 		getScene,
@@ -8,7 +7,7 @@
 		getPostprocessor,
 		getParticleOptions
 	} from '$lib/components/providers/scene';
-	import { buildPointOctree } from './buildPointOctree';
+	import { buildPointOctree } from '$lib/utils/buildPointOctree';
 	import { FrustumCuller } from '$lib/utils/FrustumCuller';
 	import { usePostProcessor } from '../utils';
 
