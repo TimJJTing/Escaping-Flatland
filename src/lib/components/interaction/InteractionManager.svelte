@@ -1,6 +1,6 @@
 <script>
 
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy, untrack } from 'svelte';
 	import { get } from 'svelte/store';
 	import * as THREE from 'three';
 	import { tweenGroup } from '$lib/utils/tweenCamera';
@@ -71,8 +71,6 @@
 		const intersects = interactionRaycaster.intersectObjects(getTargetMeshes());
 		if (intersects.length > 0) {
 			const hit = intersects[0];
-			tweenCamera(cam, ctrl, hit.point, 20);
-
 			const instanceId = hit.instanceId ?? 0;
 			const idStr = frustumCullerRef.getIdAt(hit.object, instanceId);
 			if (idStr !== undefined && selectedPoint) {
@@ -100,6 +98,21 @@
 		} else if (!enabled && viewHelper) {
 			viewHelper.dispose();
 			viewHelper = undefined;
+		}
+	});
+
+	let hadSelection = false;
+	$effect(() => {
+		const sp = $selectedPoint;
+		const cam = untrack(() => $camera);
+		const ctrl = untrack(() => $controls);
+		if (!cam || !ctrl) return;
+		if (sp) {
+			hadSelection = true;
+			tweenCamera(cam, ctrl, sp.worldPosition, 20);
+		} else if (hadSelection) {
+			hadSelection = false;
+			tweenCamera(cam, ctrl, new THREE.Vector3(0, 0, 0), 15);
 		}
 	});
 

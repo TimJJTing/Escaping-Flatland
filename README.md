@@ -25,6 +25,8 @@ Read [the article](https://jtingjiang.com/works/escaping-flatland)
 - **Solar system** — selected star spawns orbiting planets
 - **Bloom post-processing** — selective glow effect with configurable strength
 - **Labels** — instanced billboard sprites rendered without individual draw calls
+- **Search bar** — jump to any star by index from the top-center search input
+- **Orientation gizmo** — interactive ViewHelper in the bottom-right corner for quick axis alignment
 - **Settings panel** — toggle labels, bloom, auto-rotate, debug stats, and more (press `O`)
 - **Loading overlay** — animated splash while the Octree initializes
 
@@ -50,13 +52,16 @@ src/lib/
 │   ├── dashboard/        # StarDashboard — selected-star info panel
 │   ├── modals/           # OptionModal & HelpModal — dialogs
 │   ├── loading/          # LoadingOverlay — splash screen
+│   ├── lights/           # HemisphereLight — scene lighting
+│   ├── search-bar/       # SearchBar — jump to star by index
 │   ├── ui                # components from shadcn-svelte
 │   └── interaction/      # Mouse raycasting, hover labels, camera tween
 ├── meshes/
 │   ├── particles/               # BufferGeometry wrapper with custom visibility shader
 │   ├── star/                    # LOD star model with differential rotation
 │   ├── planet/ & solar-system/  # Orbiting planets spawned on star selection
-│   └── instanced-label-sprites/ # Canvas texture atlas + shader for N labels in 1 draw call
+│   ├── instanced-label-sprites/ # Canvas texture atlas + shader for N labels in 1 draw call
+│   └── view-helper/             # Interactive orientation gizmo (ViewHelper)
 └── utils/
     ├── FrustumCuller.ts     # Core culling: Octree traversal → HD/SD/LD InstancedMesh updates
     ├── SelectiveBloom.js    # Two-pass bloom compositor (UnrealBloomPass + custom shader)

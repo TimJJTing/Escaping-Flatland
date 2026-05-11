@@ -10,7 +10,7 @@
 		setParticleOptions,
 		setSceneOptions,
 		getSceneOptions,
-		setSelectedPoint,
+		setSelectedPoint
 	} from '$lib/components/providers/scene';
 	import { Particles } from '$lib/meshes/particles';
 	import { Star } from '$lib/meshes/star';
@@ -24,6 +24,7 @@
 	import { getParticleOptions } from '$lib/components/providers/scene';
 	import { LoadingOverlay } from '$lib/components/loading';
 	import { StarDashboard } from '$lib/components/dashboard';
+	import { SearchBar } from '$lib/components/search-bar';
 	import { palette, DATA_SOURCES } from '$lib/utils';
 
 	// set* must be called before children mount so context is available
@@ -115,8 +116,7 @@
 			toast(`Auto Rotate: ${opts.autoRotateEnabled ? 'On' : 'Off'}`);
 		if (opts.viewHelperEnabled !== prevScene.viewHelperEnabled)
 			toast(`View Helper: ${opts.viewHelperEnabled ? 'On' : 'Off'}`);
-		if (opts.blooming !== prevScene.blooming)
-			toast(`Blooming: ${opts.blooming ? 'On' : 'Off'}`);
+		if (opts.blooming !== prevScene.blooming) toast(`Blooming: ${opts.blooming ? 'On' : 'Off'}`);
 		if (opts.debugModeEnabled !== prevScene.debugModeEnabled)
 			toast(`Debug Mode: ${opts.debugModeEnabled ? 'On' : 'Off'}`);
 		prevScene = { ...opts };
@@ -145,6 +145,7 @@
 
 <OptionModal bind:visible={optionModalVisible} />
 <HelpModal bind:visible={helpModalVisible} />
+<SearchBar {starData} />
 <StarDashboard {starData} />
 
 <button
@@ -182,4 +183,3 @@
 	{/key}
 	<InteractionManager {frustumCullerRef} />
 </Scene>
-
