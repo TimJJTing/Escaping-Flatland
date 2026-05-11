@@ -33,7 +33,10 @@
 
   $effect(() => {
     const sp = $selectedPoint;
-    if (!sp) return;
+    if (!sp) {
+      vals.speed = vals.planets = vals.group = vals.rotA = vals.rotB = vals.rotC = null;
+      return;
+    }
     const { starIndex } = sp;
     vals.speed   = safeGet(starData.speeds, starIndex);
     vals.planets = safeGet(starData.planetCounts, starIndex);

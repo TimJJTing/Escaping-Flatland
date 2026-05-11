@@ -24,6 +24,7 @@
 	import { getParticleOptions } from '$lib/components/providers/scene';
 	import { LoadingOverlay } from '$lib/components/loading';
 	import { StarDashboard } from '$lib/components/dashboard';
+	import SearchBar from './SearchBar.svelte';
 	import { palette, DATA_SOURCES } from '$lib/utils';
 
 	// set* must be called before children mount so context is available
@@ -145,6 +146,7 @@
 
 <OptionModal bind:visible={optionModalVisible} />
 <HelpModal bind:visible={helpModalVisible} />
+<SearchBar {starData} />
 <StarDashboard {starData} />
 
 <button
