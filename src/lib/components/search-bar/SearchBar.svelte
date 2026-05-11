@@ -20,10 +20,7 @@
 		inputValue = sp ? String(sp.starIndex) : '';
 	});
 
-	/** @param {KeyboardEvent} e */
-	const onKeyDown = (e) => {
-		if (e.key !== 'Enter') return;
-
+	const search = () => {
 		const trimmed = inputValue.trim();
 
 		if (!trimmed) {
@@ -48,7 +45,7 @@
 		if (parsed === $selectedPoint?.starIndex) {
 			toast(`Star #${parsed} already focused`);
 			return;
-		};
+		}
 
 		const worldPosition = new THREE.Vector3(
 			positions[parsed * 3],
@@ -57,11 +54,17 @@
 		);
 		selectedPoint.set({ starIndex: parsed, worldPosition });
 	};
+
+	/** @param {KeyboardEvent} e */
+	const onKeyDown = (e) => {
+		if (e.key !== 'Enter') return;
+		search();
+	};
 </script>
 
 <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50">
 	<InputGroup.Root
-		class="w-[200px] h-9 rounded-full bg-[#1a1a1f]/80 backdrop-blur-sm border-[#333]"
+		class="w-[220px] h-9 rounded-full bg-[#1a1a1f]/80 backdrop-blur-sm border-[#333]"
 	>
 		<InputGroup.Addon>
 			<Search size={14} class="text-gray-100" />
@@ -75,7 +78,7 @@
 			onkeydown={onKeyDown}
 		/>
 		<InputGroup.Addon align="inline-end">
-			<Kbd>Enter</Kbd>
+			<Kbd onclick={search} class="cursor-pointer pointer-events-auto mr-1">Enter</Kbd>
 		</InputGroup.Addon>
 	</InputGroup.Root>
 </div>
