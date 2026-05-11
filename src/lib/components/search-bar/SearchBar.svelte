@@ -64,7 +64,7 @@
 
 <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50">
 	<InputGroup.Root
-		class="w-[220px] h-9 rounded-full bg-[#1a1a1f]/80 backdrop-blur-sm border-[#333]"
+		class="w-[220px] h-9 rounded-full bg-[rgba(15,15,22,0.85)] backdrop-blur-sm border border-white/10"
 	>
 		<InputGroup.Addon>
 			<Search size={14} class="text-gray-100" />

@@ -6,11 +6,15 @@
 
 Computer screens have the ability to display a wide range of information. Beyond 3D coordinates, they can simultaneously show colors, dynamic patterns, rotations, and motions, enabling human eyes to observe and interpret complex datasets.
 
-This project renders **1 million particles** in real time inside a browser using Three.js and a sparse Octree. You can orbit the camera, click any star to focus on it and inspect its data (rotation speed, planet count, differential rotation constants), and watch a miniature solar system appear around your selection. It also explores how Three.js can be integrated into a Svelte 5 project, though [Threlte](https://threlte.xyz/) offers a more mature solution for this purpose.
+This project renders **particles** in real time inside a browser using Three.js and a sparse Octree. You can orbit the camera, click any star to focus on it and inspect its data (rotation speed, planet count, differential rotation constants), and watch a miniature solar system appear around your selection. It also explores how Three.js can be integrated into a Svelte 5 project, though [Threlte](https://threlte.xyz/) offers a more mature solution for this purpose.
 
 ## Live Demo
 
 Try [the live demo](https://escaping-flatland.netlify.app)!
+
+## Demo Dataset
+
+The demo renders **1 million** randomly distributed entries. The data loader module is designed to be flexible, so this project can plot virtually anything, provided the dataset contains at least three-dimensional scalar data.
 
 ## Implementation Detail
 

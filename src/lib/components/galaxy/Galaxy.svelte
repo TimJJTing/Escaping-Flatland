@@ -149,19 +149,19 @@
 <StarDashboard {starData} />
 
 <button
-	class="fixed right-2 top-4 z-50 p-2 rounded-full bg-[#1a1a1f]/80 border border-[#333] text-white hover:bg-[#2a2a2f]/90 transition-colors"
+	class="fixed right-4 top-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[rgba(15,15,22,0.85)] text-white/60 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white"
 	onclick={() => (helpModalVisible = !helpModalVisible)}
 	aria-label="Help"
 >
-	<CircleQuestionMark size={20} />
+	<CircleQuestionMark size={16} />
 </button>
 
 <button
-	class="fixed right-2 bottom-4 z-50 p-2 rounded-full bg-[#1a1a1f]/80 border border-[#333] text-white hover:bg-[#2a2a2f]/90 transition-colors"
+	class="fixed right-4 bottom-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[rgba(15,15,22,0.85)] text-white/60 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white"
 	onclick={() => (optionModalVisible = !optionModalVisible)}
 	aria-label="Options"
 >
-	<Settings size={20} />
+	<Settings size={16} />
 </button>
 
 <LoadingOverlay loading={!frustumCullerRef} />

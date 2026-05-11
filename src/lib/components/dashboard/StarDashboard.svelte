@@ -59,7 +59,7 @@
           {$selectedPoint != null ? `Star #${$selectedPoint.starIndex}` : 'No star selected'}
         </span>
         <button
-          class="flex h-5 w-5 items-center justify-center rounded-full bg-white/[0.07] text-gray-500 transition-colors hover:bg-white/[0.14] hover:text-white"
+          class="flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white/40 transition-colors hover:bg-white/15 hover:text-white"
           onclick={() => (dismissed = true)}
           aria-label="Dismiss"
         >
@@ -115,7 +115,7 @@
     </div>
   {:else}
     <button
-      class="fixed top-4 left-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[rgba(15,15,22,0.85)] text-gray-400 backdrop-blur-xl transition-colors hover:bg-white/10 hover:text-white"
+      class="fixed top-4 left-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[rgba(15,15,22,0.85)] text-white/60 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white"
       onclick={() => (dismissed = false)}
       aria-label="Open star dashboard"
       transition:fade={{ duration: 200 }}
