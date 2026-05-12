@@ -8,13 +8,9 @@ Computer screens have the ability to display a wide range of information. Beyond
 
 This project renders **particles** in real time inside a browser using Three.js and a sparse Octree. You can orbit the camera, click any star to focus on it and inspect its data (rotation speed, planet count, differential rotation constants), and watch a miniature solar system appear around your selection. It also explores how Three.js can be integrated into a Svelte 5 project, though [Threlte](https://threlte.xyz/) offers a more mature solution for this purpose.
 
-## Live Demo
+## Live PoC Demo
 
 Try [the live demo](https://escaping-flatland.netlify.app)!
-
-## Demo Dataset
-
-The demo renders **1 million** randomly distributed entries. The data loader module is designed to be flexible, so this project can plot virtually anything, provided the dataset contains at least three-dimensional scalar data.
 
 ## Implementation Detail
 
@@ -120,3 +116,17 @@ You can preview the production build with `npm run preview`.
     docker rm escaping
     docker rmi escaping_flatland
     ```
+
+## Dataset
+
+The data loader module is designed to be flexible, so this project can plot virtually anything, provided the dataset contains at least three-dimensional scalar data. This PoC demo renders **1 million** randomly distributed entries.
+
+### Practical Considerations
+
+To render a real dataset of N points, you will need to consider loading performance and querying performance.
+
+1. **Loading Performance**: If N is large, you may need to consider chunking the data or use a more efficient data format such as binary or parquet, instead of pure json.
+
+2. **Query Performance**: The PoC demo works fine because it is just a simple randomly generated array of points, and locating an index in an array is `O(1)`. In a real dataset, you may need to perform filtering, sorting, or other analytical operations on the data while the target index may not be a simple integer. Obviously the current implementation in the PoC will not scale well at all. To enhance searching performance and support more complex queries, a more advanced querying engine such as Apache Arrow or DuckDB may be required.
+
+A tested and proven solution to this is to have a backend server (e.g., Python FastAPI) to host a querying engine (e.g., DuckDB) and expose a REST API for the frontend to query complex data. Meanwhile, the frontend can still load a stripped parquet (or other binary format) and index data for quick lookup.
