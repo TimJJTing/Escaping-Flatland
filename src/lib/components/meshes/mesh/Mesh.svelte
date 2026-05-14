@@ -17,10 +17,10 @@
 	/** @type {Props} */
 	let { mesh, raycast = false, postprocess = false } = $props();
 
-	let id = {};
-	let scene = getScene();
-	let funcPipelines = getFuncPipelines();
-	let postprocessor = getPostprocessor();
+	const id = {};
+	const scene = getScene();
+	const funcPipelines = getFuncPipelines();
+	const postprocessor = getPostprocessor();
 
 	$effect(() => {
 		useRaycast(raycast, mesh?.getMesh());

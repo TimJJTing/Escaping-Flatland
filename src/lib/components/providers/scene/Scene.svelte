@@ -9,7 +9,7 @@
 	import * as THREE from 'three';
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 	import Stats from 'three/addons/libs/stats.module.js';
-	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { SelectiveBloom } from '$lib/utils';
 	import { browser } from '$app/environment';
 	import {
@@ -56,19 +56,18 @@
 	 */
 	let mouseTarget = null;
 
-	const dispatch = createEventDispatcher();
-	let scene = setScene();
-	let sceneReady = setSceneReady();
-	let renderer = setRenderer();
-	let camera = setCamera();
-	let mouse = setMouse();
-	let raycaster = setRaycaster();
-	let postprocessor = setPostprocessor();
-	let controls = setControls();
-	let funcPipelines = setFuncPipelines();
-	let sceneOptions = getSceneOptions();
-	let camPos = setCamPos();
-	let renderInfo = setRenderInfo();
+	const scene = setScene();
+	const sceneReady = setSceneReady();
+	const renderer = setRenderer();
+	const camera = setCamera();
+	const mouse = setMouse();
+	const raycaster = setRaycaster();
+	const postprocessor = setPostprocessor();
+	const controls = setControls();
+	const funcPipelines = setFuncPipelines();
+	const sceneOptions = getSceneOptions();
+	const camPos = setCamPos();
+	const renderInfo = setRenderInfo();
 
 	// event listeners
 	const onWindowResize = () => {
@@ -93,11 +92,9 @@
 
 	const onOrbitCtrlStart = () => {
 		mouseInteraction = false;
-		dispatch('orbitCtrlStart');
 	};
 	const onOrbitCtrlEnd = () => {
 		mouseInteraction = true;
-		dispatch('orbitCtrlEnd');
 	};
 	const onOrbitCtrlChange = (event) => {
 		// execute render functions
@@ -107,15 +104,9 @@
 		if ($camera) {
 			$camPos = { x: $camera.position.x, y: $camera.position.y, z: $camera.position.z };
 		}
-		dispatch('orbitCtrlChange');
 	};
 	const onMouseClick = async (event) => {
 		event.preventDefault();
-		// use the target get from onMouseMove listener
-		// if (mouseInteraction && mouseTarget !== null) {
-		//     await urlSearchParams.set('star', mouseTarget, $page);
-		// }
-		dispatch('click');
 	};
 	const onMouseMove = (event) => {
 		event.preventDefault();
@@ -192,7 +183,6 @@
 				container.addEventListener('mousemove', onMouseMove);
 
 				$sceneReady = true;
-				dispatch('ready');
 			};
 
 			const render = () => {
@@ -238,7 +228,7 @@
 			init();
 			animate();
 		} else {
-			throw Error('Three.js only runs in a browser environment.');
+			throw new Error('Three.js only runs in a browser environment.');
 		}
 	});
 	onDestroy(() => {

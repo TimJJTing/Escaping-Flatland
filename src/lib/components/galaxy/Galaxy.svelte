@@ -1,6 +1,6 @@
 <script>
 	import * as THREE from 'three';
-	import { onMount, onDestroy, untrack } from 'svelte';
+	import { untrack } from 'svelte';
 	import { Settings, CircleQuestionMark } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import {
@@ -8,6 +8,7 @@
 		setDataOptions,
 		getDataOptions,
 		setParticleOptions,
+		getParticleOptions,
 		setSceneOptions,
 		getSceneOptions,
 		setSelectedPoint
@@ -21,7 +22,6 @@
 	import { InteractionManager } from '$lib/components/interaction';
 	import { OptionModal } from '$lib/components/modals/option';
 	import { HelpModal } from '$lib/components/modals/help';
-	import { getParticleOptions } from '$lib/components/providers/scene';
 	import { LoadingOverlay } from '$lib/components/loading';
 	import { DebugPanel } from '$lib/components/debug';
 	import { StarDashboard } from '$lib/components/dashboard';
@@ -135,15 +135,9 @@
 	const onKeyDown = (/** @type {KeyboardEvent} */ e) => {
 		if (e.key === 'o' || e.key === 'O') optionModalVisible = !optionModalVisible;
 	};
-
-	onMount(() => {
-		window.addEventListener('keydown', onKeyDown);
-	});
-	onDestroy(() => {
-		window.removeEventListener('keydown', onKeyDown);
-	});
 </script>
 
+<svelte:window onkeydown={onKeyDown} />
 <OptionModal bind:visible={optionModalVisible} />
 <HelpModal bind:visible={helpModalVisible} />
 <SearchBar {starData} />

@@ -26,14 +26,14 @@
 	/** @type {Props} */
 	let { frustumCullerRef } = $props();
 
-	let scene = getScene();
-	let camera = getCamera();
-	let controls = getControls();
-	let renderer = getRenderer();
-	let mouse = getMouse();
-	let funcPipelines = getFuncPipelines();
-	let sceneOptions = getSceneOptions();
-	let selectedPoint = getSelectedPoint();
+	const scene = getScene();
+	const camera = getCamera();
+	const controls = getControls();
+	const renderer = getRenderer();
+	const mouse = getMouse();
+	const funcPipelines = getFuncPipelines();
+	const sceneOptions = getSceneOptions();
+	const selectedPoint = getSelectedPoint();
 
 	/** @type {CSS2DRenderer|undefined} */
 	let labelRenderer;

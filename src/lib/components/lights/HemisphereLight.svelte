@@ -16,7 +16,7 @@
 	/** @type {Props} */
 	let { skyColor, groundColor, intensity } = $props();
 
-	let scene = getScene();
+	const scene = getScene();
 
 	/**
 	 * @type {THREE.HemisphereLight}

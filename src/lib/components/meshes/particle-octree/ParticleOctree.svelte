@@ -38,16 +38,16 @@
 	/** @type {import('three').Mesh|undefined} */
 	let fcHDParticles = $state(undefined);
 	/** @type {import('three').Mesh|undefined} */
-	let fcSDParticles = $state();
+	let fcSDParticles = $state(undefined);
 	/** @type {import('three').Mesh|undefined} */
-	let fcLDParticles = $state();
+	let fcLDParticles = $state(undefined);
 
-	let id = {};
-	let scene = getScene();
-	let camera = getCamera();
-	let funcPipelines = getFuncPipelines();
-	let postprocessor = getPostprocessor();
-	let particleOptions = getParticleOptions();
+	const id = {};
+	const scene = getScene();
+	const camera = getCamera();
+	const funcPipelines = getFuncPipelines();
+	const postprocessor = getPostprocessor();
+	const particleOptions = getParticleOptions();
 
 	$effect(() => {
 		usePostProcessor(postprocess, $postprocessor, fcHDParticles);
