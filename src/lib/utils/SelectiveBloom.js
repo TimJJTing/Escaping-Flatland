@@ -54,6 +54,7 @@ export class SelectiveBloom {
 		this._darkMaterial = new THREE.MeshBasicMaterial({
 			color: 0x000000
 		});
+		this._backgroundColor = new THREE.Color(0x000000);
 		this._renderer = renderer;
 		this._scene = scene;
 		this._camera = camera;
@@ -210,7 +211,7 @@ export class SelectiveBloom {
 	render() {
 		const originalBackground = this._scene.background;
 		const nonBloomedMaterials = {};
-		this._scene.background = new THREE.Color(0x000000);
+		this._scene.background = this._backgroundColor;
 
 		// Darken non-bloomed objects:
 		// traverse objects and replace non-bloomed's materials or hide them completely.
@@ -242,11 +243,10 @@ export class SelectiveBloom {
 			}
 		});
 
-		this._scene.background.set(0x000000);
 		// render scene for the first time
 		this.bloomComposer.render();
 
-		this._scene.background.set(originalBackground);
+		this._scene.background = originalBackground;
 
 		// Restore original materials:
 		// traverse objects and restore non-bloomed's materials or unhide them.
