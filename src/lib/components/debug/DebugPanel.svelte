@@ -16,7 +16,7 @@
 	]);
 </script>
 
-<div class="fixed right-0 top-12 z-[100] w-40 bg-black/50 p-1">
+<div class="fixed right-0 top-12 z-100 w-40 bg-black/50 p-1">
 	{#each rows as [label, value]}
 		<div class="flex justify-between px-0.5 font-mono text-[11px] text-white hover:bg-white/15">
 			<span>{label}</span>
