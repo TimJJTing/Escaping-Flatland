@@ -23,6 +23,7 @@
 	import { HelpModal } from '$lib/components/modals/help';
 	import { getParticleOptions } from '$lib/components/providers/scene';
 	import { LoadingOverlay } from '$lib/components/loading';
+	import { DebugPanel } from '$lib/components/debug';
 	import { StarDashboard } from '$lib/components/dashboard';
 	import { SearchBar } from '$lib/components/search-bar';
 	import { palette, DATA_SOURCES } from '$lib/utils';
@@ -182,4 +183,7 @@
 		/>
 	{/key}
 	<InteractionManager {frustumCullerRef} />
+	{#if $sceneOptions.debugModeEnabled}
+		<DebugPanel />
+	{/if}
 </Scene>

@@ -46,6 +46,12 @@ export const { set: setPostprocessor, get: getPostprocessor } =
 export const { set: setSceneReady, get: getSceneReady } =
 	contextStore('sceneReady', false);
 
+export const { set: setCamPos, get: getCamPos } =
+	contextStore('camPos', { x: 0, y: 0, z: 0 });
+
+export const { set: setRenderInfo, get: getRenderInfo } =
+	contextStore('renderInfo', { frame: 0, calls: 0, triangles: 0, points: 0, lines: 0 });
+
 // ---------------------------------------------------------------------------
 // Function pipelines  (update / render / camera — fired each animation frame)
 // ---------------------------------------------------------------------------

@@ -28,6 +28,7 @@ Read [the article](https://jtingjiang.com/works/escaping-flatland)
 - **Search bar** — jump to any star by index from the top-center search input
 - **Orientation gizmo** — interactive ViewHelper in the bottom-right corner for quick axis alignment
 - **Settings panel** — toggle labels, bloom, auto-rotate, debug stats, and more (press `O`)
+- **Debug overlay** — camera position (x, y, z) and renderer stats (triangles, draw calls, points, lines, frame) displayed below the stats widget when debug mode is on
 - **Loading overlay** — animated splash while the Octree initializes
 
 ## Tech Stack
@@ -51,6 +52,7 @@ src/lib/
 │   ├── meshes/           # Interface to use Three.js meshes as Svelte components
 │   ├── dashboard/        # StarDashboard — selected-star info panel
 │   ├── modals/           # OptionModal & HelpModal — dialogs
+│   ├── debug/            # DebugPanel — camera position & renderer stats overlay
 │   ├── loading/          # LoadingOverlay — splash screen
 │   ├── lights/           # HemisphereLight — scene lighting
 │   ├── search-bar/       # SearchBar — jump to star by index

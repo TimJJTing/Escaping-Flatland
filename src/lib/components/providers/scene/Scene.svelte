@@ -22,7 +22,9 @@
 		setMouse,
 		setRaycaster,
 		setPostprocessor,
-		getSceneOptions
+		getSceneOptions,
+		setCamPos,
+		setRenderInfo
 	} from './context';
 
 	
@@ -65,6 +67,8 @@
 	let controls = setControls();
 	let funcPipelines = setFuncPipelines();
 	let sceneOptions = getSceneOptions();
+	let camPos = setCamPos();
+	let renderInfo = setRenderInfo();
 
 	// event listeners
 	const onWindowResize = () => {
@@ -100,17 +104,9 @@
 		$funcPipelines.cameraPipeline?.forEach((cameraFunc) => {
 			cameraFunc();
 		});
-		// $distanceToTarget = Math.round(controls.getDistance());
-		// $distanceToCenter = Math.round(camera.position.distanceTo(origin));
-		// 0.8 <= pass_strength <= 0.5 prevent scene from being too bright when the camera approaches the center of the universe
-		// postprocessing.setPassParams({
-		// 	strength: Math.min(0.8, Math.max($distanceToCenter / initialDistance, 0.5))
-		// });
-		// $camPos = {
-		// 	x: camera.position.x,
-		// 	y: camera.position.y,
-		// 	z: camera.position.z
-		// };
+		if ($camera) {
+			$camPos = { x: $camera.position.x, y: $camera.position.y, z: $camera.position.z };
+		}
 		dispatch('orbitCtrlChange');
 	};
 	const onMouseClick = async (event) => {
@@ -211,8 +207,7 @@
 					renderFunc();
 				});
 
-				// update render info for debug mode
-				// if ($option.debugModeEnabled) $renderInfo = { ...renderer.info.render };
+				if (stats && $renderer) $renderInfo = { ...$renderer.info.render };
 
 				if ($renderer) {
 					// $renderer.toneMappingExposure = $toneMappingExposure;

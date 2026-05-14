@@ -83,7 +83,7 @@
 				<div class="flex items-center justify-between">
 					<Label for="debug-toggle" class="text-sm text-gray-300 cursor-default">
 						Debug Mode
-						<span class="text-xs text-gray-500 block">Show Three.js stats panel (FPS, MS, MB)</span>
+						<span class="text-xs text-gray-500 block">Show stats panel (FPS, MS, MB) and camera position / renderer info overlay</span>
 					</Label>
 					<Switch id="debug-toggle" bind:checked={$sceneOptions.debugModeEnabled} />
 				</div>
