@@ -194,6 +194,10 @@
 		const rend = get(renderer);
 		rend?.domElement.removeEventListener('click', handleClick);
 		window.removeEventListener('resize', onWindowResize);
+		if (hoverLabel) {
+			const scn = get(scene);
+			scn?.remove(hoverLabel.object);
+		}
 		if (labelRenderer) {
 			labelRenderer.domElement.remove();
 		}

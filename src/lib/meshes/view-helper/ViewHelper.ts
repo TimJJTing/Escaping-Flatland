@@ -83,6 +83,8 @@ class ViewHelper extends Object3D {
 	controlsChangeEvent: { listener: () => void };
 	viewport: Vector4 = new Vector4();
 	offsetHeight: number = 0;
+	private _activeDrag: ((e: PointerEvent) => void) | null = null;
+	private _activeEndDrag: (() => void) | null = null;
 
 	constructor(
 		camera: PerspectiveCamera | OrthographicCamera,
@@ -156,6 +158,8 @@ class ViewHelper extends Object3D {
 		const endDrag = () => {
 			document.removeEventListener('pointermove', drag, false);
 			document.removeEventListener('pointerup', endDrag, false);
+			this._activeDrag = null;
+			this._activeEndDrag = null;
 
 			if (!this.dragging) {
 				this.handleClick(e);
@@ -174,6 +178,8 @@ class ViewHelper extends Object3D {
 
 		setRadius(this.camera, this.target);
 
+		this._activeDrag = drag;
+		this._activeEndDrag = endDrag;
 		document.addEventListener('pointermove', drag, false);
 		document.addEventListener('pointerup', endDrag, false);
 	}
@@ -285,6 +291,13 @@ class ViewHelper extends Object3D {
 	}
 
 	dispose() {
+		if (this._activeDrag && this._activeEndDrag) {
+			document.removeEventListener('pointermove', this._activeDrag, false);
+			document.removeEventListener('pointerup', this._activeEndDrag, false);
+			this._activeDrag = null;
+			this._activeEndDrag = null;
+		}
+
 		this.axesLines.geometry.dispose();
 		(this.axesLines.material as Material).dispose();
 

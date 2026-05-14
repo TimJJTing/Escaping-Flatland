@@ -268,4 +268,12 @@ export class SelectiveBloom {
 		this.bloomComposer.setSize(width, height);
 		this.finalComposer.setSize(width, height);
 	}
+
+	dispose() {
+		this._darkMaterial.dispose();
+		this._bloomPass.dispose();
+		this._mixPass.material.dispose();
+		this.bloomComposer.dispose();
+		this.finalComposer.dispose();
+	}
 }

@@ -252,6 +252,12 @@
 				$controls.removeEventListener('change', onOrbitCtrlChange);
 				$controls.removeEventListener('start', onOrbitCtrlStart);
 				$controls.removeEventListener('end', onOrbitCtrlEnd);
+				$controls.dispose();
+			}
+			if ($postprocessor) $postprocessor.dispose();
+			if ($renderer) {
+				$renderer.dispose();
+				$renderer.domElement.remove();
 			}
 		}
 	});

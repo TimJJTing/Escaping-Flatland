@@ -144,6 +144,8 @@ export class InstancedLabelSprites {
 	}
 
 	update() {
+		const oldTexture = this.material.uniforms.uMarkerTexture.value;
+		if (oldTexture) oldTexture.dispose();
 		this.material.uniforms.uMarkerTexture.value = this._getMarkerTexture(
 			this._textureDimensions.x,
 			this._textureDimensions.y,
@@ -156,6 +158,8 @@ export class InstancedLabelSprites {
 		}
 	}
 	dispose() {
+		const tex = this.material.uniforms.uMarkerTexture.value;
+		if (tex) tex.dispose();
 		this.mesh.dispose();
 		this.geometry.dispose();
 		this.material.dispose();
