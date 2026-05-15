@@ -6,7 +6,7 @@ export class Particles {
 	 * Particles
 	 * @param {number[]} positions positions of particles, size = #particles * 3
 	 * @param {number[]} colors colors of particles
-	 * @param {number[]} group group of particles
+	 * @param {number[]} groups group of particles
 	 * @param {{size: number, sizeAttenuation: boolean, vertexColors: boolean}|undefined} params material parameters
 	 * @returns this
 	 */
