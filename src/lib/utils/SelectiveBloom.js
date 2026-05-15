@@ -8,7 +8,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 // import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
-const defaultParams = {
+const DEFAULT_PARAMS = {
 	threshold: 0.1,
 	strength: 0.8,
 	radius: 0.5
@@ -47,7 +47,7 @@ export class SelectiveBloom {
 	 * @param {*} renderer renderer
 	 * @param {*} scene scene
 	 * @param {*} camera camera
-	 * @param {Integer} bloomScene the blooming layer
+	 * @param {number} bloomScene the blooming layer
 	 * @returns this
 	 */
 	constructor(renderer, scene, camera, bloomScene = 1) {
@@ -78,9 +78,9 @@ export class SelectiveBloom {
 	_createBloomPass() {
 		const bloomPass = new UnrealBloomPass(
 			new THREE.Vector2(window.innerWidth, window.innerHeight),
-			defaultParams.strength,
-			defaultParams.radius,
-			defaultParams.threshold
+			DEFAULT_PARAMS.strength,
+			DEFAULT_PARAMS.radius,
+			DEFAULT_PARAMS.threshold
 		);
 		return bloomPass;
 	}
