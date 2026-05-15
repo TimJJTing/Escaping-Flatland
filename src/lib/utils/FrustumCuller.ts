@@ -19,6 +19,9 @@ import {
 import { InstancedLabelSprites } from '$lib/meshes/instanced-label-sprites';
 import type { Octree, PointOctant } from 'sparse-octree';
 
+type StarPoint = { index: number; group: number; id: string };
+type OctantPayload = { points: Vector3[]; data: StarPoint[] };
+
 // Module-scope scratch objects shared across all cull() calls to avoid per-frame GC pressure.
 const frustum = new Frustum();
 const m = new Matrix4();
@@ -361,8 +364,8 @@ export class FrustumCuller {
 			// we can do this because usually we do not have too many octants
 			const intersections = this.octree.cull(frustum);
 			intersections.sort((a, b) => {
-				const x = a as PointOctant<Object3D>;
-				const y = b as PointOctant<Object3D>;
+				const x = a as PointOctant<OctantPayload>;
+				const y = b as PointOctant<OctantPayload>;
 				return (
 					x.distanceToSquared(this.cullCamera.position) -
 					y.distanceToSquared(this.cullCamera.position)
@@ -377,7 +380,7 @@ export class FrustumCuller {
 			octantHelper.count = Math.min(this.maxOctantHelperCount, intersections.length);
 			if (intersections.length > 0) {
 				for (let i = 0, l = intersections.length; i < l; ++i) {
-					const x = intersections[i] as PointOctant<Object3D>;
+					const x = intersections[i] as PointOctant<OctantPayload>;
 
 					// if the intersected octant contains points
 					if (x.data?.points?.length) {
@@ -396,10 +399,8 @@ export class FrustumCuller {
 							if (ldpts >= maxLDMeshCount) break;
 
 							// check if the point is not filtered out
-							//@ts-ignore
 							let visible = focusGroup === undefined || focusGroup === x.data.data[pidx].group;
 							if (filterArray) {
-								//@ts-ignore
 								visible = visible && filterArray[x.data.data[pidx].index] === 1;
 							}
 
@@ -411,11 +412,9 @@ export class FrustumCuller {
 									x.data.points[pidx].z
 								);
 								tempObj.updateMatrix();
-								//@ts-ignore
 								let [r, g, b] = groupColors ? groupColors[x.data.data[pidx].group] : [255, 255, 255];
 								tempColor.setRGB(r / 255, g / 255, b / 255);
 
-								//@ts-ignore
 								const dataId = String(x.data.data[pidx].index);
 								// if it is within the hd distance and not exceeding the max count
 								if (
