@@ -1,5 +1,4 @@
 <script>
-
 	import { onMount, onDestroy, untrack } from 'svelte';
 	import * as THREE from 'three';
 	import { tweenGroup } from '$lib/utils/tweenCamera';

@@ -3,9 +3,6 @@
 	import * as THREE from 'three';
 	import { getSceneContext } from '$lib/components/providers/scene';
 
-
-
-
 	/**
 	 * @typedef {Object} Props
 	 * @property {THREE.ColorRepresentation} skyColor
