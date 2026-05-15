@@ -72,6 +72,11 @@ export class _Star {
 	dispose() {
 		this.clock.stop();
 
+		if (this.light) {
+			this.mesh.remove(this.light);
+			this.light.dispose();
+		}
+
 		const geometry = this.mesh.geometry;
 		const material = this.mesh.material;
 

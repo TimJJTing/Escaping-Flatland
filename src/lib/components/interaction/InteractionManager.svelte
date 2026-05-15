@@ -186,9 +186,11 @@
 		if (hoverLabel) {
 			const scn = ctx.scene;
 			scn?.remove(hoverLabel.object);
+			hoverLabel.object.element.remove();
 		}
 		if (labelRenderer) {
 			labelRenderer.domElement.remove();
+			labelRenderer.dispose();
 		}
 		if (viewHelper) viewHelper.dispose();
 	});

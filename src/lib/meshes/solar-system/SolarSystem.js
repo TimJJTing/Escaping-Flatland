@@ -108,10 +108,10 @@ export class SolarSystem {
 	 */
 	dispose() {
 		this.clock.stop();
-		this.group.clear();
 		this.sun.dispose();
 		for (let i = 0; i < this.planets.length; i++) {
 			this.planets[i].dispose();
 		}
+		this.group.clear();
 	}
 }

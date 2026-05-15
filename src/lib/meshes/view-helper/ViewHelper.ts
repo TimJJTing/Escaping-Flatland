@@ -305,6 +305,7 @@ class ViewHelper extends Object3D {
 		(this.backgroundSphere.material as Material).dispose();
 
 		this.spritePoints.forEach((sprite) => {
+			sprite.geometry.dispose();
 			sprite.material.map!.dispose();
 			sprite.material.dispose();
 		});
