@@ -20,7 +20,6 @@ import { InstancedLabelSprites } from '$lib/meshes/instanced-label-sprites';
 import type { Octree, PointOctant } from 'sparse-octree';
 
 type StarPoint = { index: number; group: number; id: string };
-type OctantPayload = { points: Vector3[]; data: StarPoint[] };
 
 // Module-scope scratch objects shared across all cull() calls to avoid per-frame GC pressure.
 const frustum = new Frustum();
@@ -364,8 +363,8 @@ export class FrustumCuller {
 			// we can do this because usually we do not have too many octants
 			const intersections = this.octree.cull(frustum);
 			intersections.sort((a, b) => {
-				const x = a as PointOctant<OctantPayload>;
-				const y = b as PointOctant<OctantPayload>;
+				const x = a as PointOctant<StarPoint>;
+				const y = b as PointOctant<StarPoint>;
 				return (
 					x.distanceToSquared(this.cullCamera.position) -
 					y.distanceToSquared(this.cullCamera.position)
@@ -380,7 +379,7 @@ export class FrustumCuller {
 			octantHelper.count = Math.min(this.maxOctantHelperCount, intersections.length);
 			if (intersections.length > 0) {
 				for (let i = 0, l = intersections.length; i < l; ++i) {
-					const x = intersections[i] as PointOctant<OctantPayload>;
+					const x = intersections[i] as PointOctant<StarPoint>;
 
 					// if the intersected octant contains points
 					if (x.data?.points?.length) {
