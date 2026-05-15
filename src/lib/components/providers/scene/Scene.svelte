@@ -1,5 +1,4 @@
 <script module>
-	export const RAYCAST_LAYER = 1;
 	export const BLOOM_LAYER = 2;
 	export const COLLAPSE_SCALE = 0.0001;
 </script>
@@ -112,9 +111,6 @@
 				ctx.scene.fog = new THREE.FogExp2(0x121215, 0.00004);
 				ctx.scene.background = new THREE.Color(0x121215);
 
-				ctx.raycaster = new THREE.Raycaster();
-				ctx.raycaster.far = 1200;
-				ctx.raycaster.layers.set(RAYCAST_LAYER);
 				ctx.mouse = new THREE.Vector2(1, 1);
 
 				// add camera

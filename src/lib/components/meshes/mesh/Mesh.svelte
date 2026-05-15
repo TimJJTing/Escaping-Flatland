@@ -1,24 +1,20 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
 	import { getSceneContext } from '$lib/components/providers/scene';
-	import { usePostProcessor, useRaycast } from '../utils';
+	import { usePostProcessor } from '../utils';
 
 	/**
 	 * @typedef {Object} Props
 	 * @property {any} mesh - mesh to add into scene
-	 * @property {boolean} [raycast] - enable raycasting?
 	 * @property {boolean} [postprocess] - add to postprocess?
 	 */
 
 	/** @type {Props} */
-	let { mesh, raycast = false, postprocess = false } = $props();
+	let { mesh, postprocess = false } = $props();
 
 	const id = {};
 	const ctx = getSceneContext();
 
-	$effect(() => {
-		useRaycast(raycast, mesh?.getMesh());
-	});
 	$effect(() => {
 		usePostProcessor(postprocess, ctx.postprocessor, mesh?.getMesh());
 	});
