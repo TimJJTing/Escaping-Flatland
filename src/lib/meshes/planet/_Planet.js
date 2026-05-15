@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as THREE from 'three';
 import vsDecl from './shaderChunks/vsDecl.glsl?raw';
 import vsMainStart from './shaderChunks/vsMainStart.glsl?raw';
@@ -7,6 +6,12 @@ import fsBeforeMain from './shaderChunks/fsBeforeMain.glsl?raw';
 import fsMainEnd from './shaderChunks/fsMainEnd.glsl?raw';
 
 export class _Planet {
+	/**
+	 * @param {number} radius
+	 * @param {number} detail
+	 * @param {number} rotationSpeed
+	 * @param {THREE.Vector3} [rotationAxis]
+	 */
 	constructor(radius = 1, detail = 5, rotationSpeed = 0.1, rotationAxis) {
 		this.clock = new THREE.Clock();
 		this.rotationSpeed = rotationSpeed;

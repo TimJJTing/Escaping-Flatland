@@ -1,8 +1,13 @@
-// @ts-nocheck
 import * as THREE from 'three';
+/** @import { Star } from '../star/Star.js' */
+/** @import { Planet } from '../planet/Planet.js' */
+
 export class SolarSystem {
 	/**
 	 * Solar System
+	 * @param {Star} sun
+	 * @param {string} name
+	 * @param {Planet[]} [planets]
 	 * @returns this
 	 */
 	constructor(sun, name, planets = []) {
@@ -45,12 +50,18 @@ export class SolarSystem {
 		return this.group;
 	}
 
+	/**
+	 * @param {Planet} planet
+	 */
 	addPlanet(planet) {
 		planet.position.set(this.sun.position.x + planet.au, this.sun.position.y, this.sun.position.z);
 		this.planets.push(planet);
 		this.group.add(planet.getMesh());
 	}
 
+	/**
+	 * @param {Planet} planet
+	 */
 	removePlanet(planet) {
 		const index = this.planets.indexOf(planet);
 		if (index !== -1) {

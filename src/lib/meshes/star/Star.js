@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as THREE from 'three';
 import { _Star } from './_Star';
 

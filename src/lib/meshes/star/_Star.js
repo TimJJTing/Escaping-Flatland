@@ -1,9 +1,15 @@
-// @ts-nocheck
 import * as THREE from 'three';
 import vertexShader from './shaders/vertex.glsl?raw';
 import fragmentShader from './shaders/fragment.glsl?raw';
 
 export class _Star {
+	/**
+	 * @param {number} radius
+	 * @param {number} detail
+	 * @param {number} speed
+	 * @param {THREE.Vector3} color
+	 * @param {boolean} addLight
+	 */
 	constructor(
 		radius = 1,
 		detail = 5,
@@ -38,7 +44,7 @@ export class _Star {
 		this.needsUpdate = false;
 		// add lighting
 		if (addLight) {
-			const pointLight = new THREE.PointLight(this.color, 20, 10);
+			const pointLight = new THREE.PointLight(/** @type {any} */ (this.color), 20, 10);
 			pointLight.position.copy(this.mesh.position);
 			this.light = pointLight;
 			this.mesh.add(pointLight);
@@ -61,7 +67,7 @@ export class _Star {
 			this.material.uniforms.uDiffRotationCA.value = this.diffRotationCA;
 			this.material.uniforms.uDiffRotationCB.value = this.diffRotationCB;
 			this.material.uniforms.uDiffRotationCC.value = this.diffRotationCC;
-			if (this.light) this.light.color.set(this.color);
+			if (this.light) this.light.color.set(/** @type {any} */ (this.color));
 			this.needsUpdate = false;
 		}
 	}
