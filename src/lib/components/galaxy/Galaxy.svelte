@@ -114,8 +114,16 @@
 	let optionModalVisible = $state(false);
 	let helpModalVisible = $state(false);
 
-	let prevScene = { ...sceneOpts };
-	let prevParticle = { ...particleOpts };
+	let prevScene = {
+		autoRotateEnabled: sceneOpts.autoRotateEnabled,
+		viewHelperEnabled: sceneOpts.viewHelperEnabled,
+		blooming: sceneOpts.blooming,
+		debugModeEnabled: sceneOpts.debugModeEnabled
+	};
+	let prevParticle = {
+		labelsEnabled: particleOpts.labelsEnabled,
+		octantHelperEnabled: particleOpts.octantHelperEnabled
+	};
 
 	$effect(() => {
 		const opts = sceneOpts;
@@ -126,7 +134,12 @@
 		if (opts.blooming !== prevScene.blooming) toast(`Blooming: ${opts.blooming ? 'On' : 'Off'}`);
 		if (opts.debugModeEnabled !== prevScene.debugModeEnabled)
 			toast(`Debug Mode: ${opts.debugModeEnabled ? 'On' : 'Off'}`);
-		prevScene = { ...opts };
+		prevScene = {
+			autoRotateEnabled: opts.autoRotateEnabled,
+			viewHelperEnabled: opts.viewHelperEnabled,
+			blooming: opts.blooming,
+			debugModeEnabled: opts.debugModeEnabled
+		};
 	});
 
 	$effect(() => {
@@ -135,7 +148,10 @@
 			toast(`Labels: ${opts.labelsEnabled ? 'On' : 'Off'}`);
 		if (opts.octantHelperEnabled !== prevParticle.octantHelperEnabled)
 			toast(`Octant Helper: ${opts.octantHelperEnabled ? 'On' : 'Off'}`);
-		prevParticle = { ...opts };
+		prevParticle = {
+			labelsEnabled: opts.labelsEnabled,
+			octantHelperEnabled: opts.octantHelperEnabled
+		};
 	});
 
 	const onKeyDown = (/** @type {KeyboardEvent} */ e) => {

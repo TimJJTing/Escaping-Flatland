@@ -1,3 +1,3 @@
 export { default as Scene } from './Scene.svelte';
 export * from './Scene.svelte';
-export * from './context.svelte';
+export * from './context.svelte.js';

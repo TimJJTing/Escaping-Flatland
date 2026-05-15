@@ -12,7 +12,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { SelectiveBloom } from '$lib/utils';
 	import { browser } from '$app/environment';
-	import { setSceneContext, getSceneOptions } from './context.svelte';
+	import { setSceneContext, getSceneOptions } from './context.svelte.js';
 
 
 	/**
