@@ -68,14 +68,17 @@ src/lib/
     ├── FrustumCuller.ts     # Core culling: Octree traversal → HD/SD/LD InstancedMesh updates
     ├── SelectiveBloom.js    # Two-pass bloom compositor (UnrealBloomPass + custom shader)
     ├── tweenCamera.js       # Smooth camera focus animation
-    ├── buildPointOctree.js  # build a sparse Octree
-    └── dataSources.js       # Pluggable data source interface (currently: random galaxy, 1M pts)
+    ├── buildPointOctree.js  # Build a sparse Octree
+    ├── dataSources.js       # Pluggable data source interface
+    ├── generateData.js      # Random star data generator (1M pts, positions/colors/orbital params)
+    ├── color.js             # Star color palette
+    └── addLabel.js          # CSS2DObject factory for hover tooltip labels
 ```
 
 ## Developing
 
 1. Under the project root, make sure you're running node 24 or run `nvm use` if you have nvm installed.
-2. Install dependencies with `npm install` (or `pnpm install` or `yarn`)
+2. Install dependencies with `npm install`
 3. Start a development server:
 
 ```bash
