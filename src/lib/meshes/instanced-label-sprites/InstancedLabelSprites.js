@@ -27,8 +27,8 @@ export class InstancedLabelSprites {
 		this.needsUpdate = false;
 		this._textureDimensions = this.textureResolution.clone().divide(this.labelResolution);
 		if (this._textureDimensions.x * this._textureDimensions.y < this.count) {
-			console.log(
-				'[Warn] Unable to construct a texture that can include all labels. Either decrease the count, decrease the label resolution, or increase the texture resolution.'
+			console.warn(
+				'Unable to construct a texture that can include all labels. Either decrease the count, decrease the label resolution, or increase the texture resolution.'
 			);
 		}
 

@@ -83,25 +83,6 @@ export class SolarSystem {
 		return this.group.visible;
 	}
 
-	/**
-	 * @param v {boolean}
-	 */
-	// set visible(v) {
-	// 	this.star.visible = v;
-	// }
-	/**
-	 * @param p {THREE.Vector3}
-	 */
-	// lookAt(p) {
-	// 	this.star.lookAt(p);
-	// }
-	/**
-	 * Return the LOD Object3D
-	 */
-	// getMesh() {
-	// 	return this.lod;
-	// }
-
 	update() {
 		this._time = this.clock.getElapsedTime();
 		this.sun.update();

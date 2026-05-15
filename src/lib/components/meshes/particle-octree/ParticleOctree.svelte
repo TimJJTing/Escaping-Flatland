@@ -12,7 +12,6 @@
 	 * @property {any} ids
 	 * @property {any} groupColors
 	 * @property {boolean} [postprocess]
-	 * @property {undefined|import('sparse-octree').PointOctree<any>} [octree]
 	 * @property {undefined|FrustumCuller} [frustumCullerRef]
 	 */
 
@@ -23,12 +22,12 @@
 		ids,
 		groupColors,
 		postprocess = false,
-		octree = $bindable(undefined),
 		frustumCullerRef = $bindable(undefined)
 	} = $props();
 
 	/** @type {undefined|FrustumCuller} */
 	let frustumCuller = $state(undefined);
+	let octree;
 	/** @type {import('three').Mesh|undefined} */
 	let fcHDParticles = $state(undefined);
 	/** @type {import('three').Mesh|undefined} */

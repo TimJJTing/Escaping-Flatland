@@ -19,7 +19,6 @@ export class _Star {
 	) {
 		this.clock = new THREE.Clock();
 		this.speed = speed;
-		// TODO: age * mass -> temperature -> color
 		this.color = color;
 		// differential rotation constants: https://en.wikipedia.org/wiki/Solar_rotation
 		this.diffRotationCA = 14.713; // constant A

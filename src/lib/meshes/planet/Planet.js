@@ -105,7 +105,6 @@ export class Planet {
 			}
 			this.needsUpdate = false;
 		}
-		// this.lod.levels[this.lod.getCurrentLevel()].object.update();
 		this.levels[0].update();
 	}
 

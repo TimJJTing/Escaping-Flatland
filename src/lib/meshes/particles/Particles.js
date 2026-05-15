@@ -19,7 +19,6 @@ export class Particles {
 		this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 		this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 		this.geometry.setAttribute('group', new THREE.Int32BufferAttribute(groups, 1));
-		// this.geometry.setAttribute('group', new THREE.Int16BufferAttribute(groups, 1));
 		this.visibilities = this._createVisibilities();
 		this.geometry.setAttribute(
 			'visibility',
@@ -27,9 +26,9 @@ export class Particles {
 		);
 		this.material = new THREE.PointsMaterial({
 			transparent: true,
-			size: params?.size || 1,
-			sizeAttenuation: params?.sizeAttenuation || false,
-			vertexColors: params?.vertexColors || true
+			size: params?.size ?? 1,
+			sizeAttenuation: params?.sizeAttenuation ?? false,
+			vertexColors: params?.vertexColors ?? true
 		});
 		// apply opacity to each vertex
 		this.material.onBeforeCompile = (shader) => {

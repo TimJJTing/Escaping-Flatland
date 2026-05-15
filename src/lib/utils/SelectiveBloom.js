@@ -5,7 +5,6 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-// import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const DEFAULT_PARAMS = {
@@ -67,10 +66,7 @@ export class SelectiveBloom {
 		this._bloomPass = this._createBloomPass();
 		this.bloomComposer = this._createBloomComposer();
 		this._mixPass = this._createMixPass();
-		// this._outlinePass = this._createOutlinePass();
 		this.finalComposer = this._createFinalComposer();
-
-		// this._selectObjects = [];
 
 		return this;
 	}
@@ -111,53 +107,17 @@ export class SelectiveBloom {
 		return mixPass;
 	}
 
-	// _createOutlinePass() {
-	// 	const outlinePass = new OutlinePass(
-	// 		new THREE.Vector2(window.innerWidth, window.innerHeight),
-	// 		this._scene,
-	// 		this._camera
-	// 	);
-	// 	outlinePass.edgeStrength = 3.0;
-	// 	outlinePass.edgeGlow = 0.0;
-	// 	outlinePass.edgeThickness = 1.0;
-	// 	outlinePass.visibleEdgeColor.set('#ffffff');
-
-	// 	return outlinePass;
-	// }
-
 	_createFinalComposer() {
 		let finalComposer = new EffectComposer(this._renderer);
 		finalComposer.addPass(this._renderScene);
 
-		// mix pass
 		finalComposer.addPass(this._mixPass);
-
-		// outline pass
-		// finalComposer.addPass(this._outlinePass);
 
 		// output pass
 		const outputPass = new OutputPass();
 		finalComposer.addPass(outputPass);
 		return finalComposer;
 	}
-
-	// /**
-	//  * Add new object to this post effect
-	//  * @param {THREE.Object3D} obj
-	//  */
-	// addOutline(obj) {
-	// 	this._selectedObjects = [];
-	// 	this._selectedObjects.push(obj);
-	// 	this._outlinePass.selectedObjects = this._selectedObjects;
-	// }
-
-	// /**
-	//  * Remove objects from this post effect
-	//  */
-	// removeOutline() {
-	// 	this._selectedObjects = [];
-	// 	this._outlinePass.selectedObjects = this._selectedObjects;
-	// }
 
 	/**
 	 * Add new object to this post effect

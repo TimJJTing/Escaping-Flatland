@@ -50,7 +50,6 @@ const mouse = new Vector2();
 const mouseStart = new Vector2();
 const mouseAngle = new Vector2();
 const dummy = new Object3D();
-let radius = 0;
 
 type GizmoOrientation = '+x' | '-x' | '+y' | '-y' | '+z' | '-z';
 
@@ -78,6 +77,7 @@ class ViewHelper extends Object3D {
 	domContainer: HTMLElement;
 	domRect: DOMRect;
 	dragging: boolean = false;
+	_radius: number = 0;
 	renderer: WebGLRenderer;
 	controls?: OrbitControls | TrackballControls;
 	controlsChangeEvent: { listener: () => void };
@@ -149,7 +149,7 @@ class ViewHelper extends Object3D {
 
 			q1.copy(this.quaternion).invert();
 
-			this.camera.position.set(0, 0, 1).applyQuaternion(q1).multiplyScalar(radius).add(this.target);
+			this.camera.position.set(0, 0, 1).applyQuaternion(q1).multiplyScalar(this._radius).add(this.target);
 
 			this.camera.rotation.setFromQuaternion(q1);
 
@@ -272,7 +272,7 @@ class ViewHelper extends Object3D {
 		// animate position by doing a slerp and then scaling the position on the unit sphere
 
 		q1.rotateTowards(q2, step);
-		this.camera.position.set(0, 0, 1).applyQuaternion(q1).multiplyScalar(radius).add(this.target);
+		this.camera.position.set(0, 0, 1).applyQuaternion(q1).multiplyScalar(this._radius).add(this.target);
 
 		// animate orientation
 
@@ -286,7 +286,7 @@ class ViewHelper extends Object3D {
 	}
 
 	setOrientation(orientation: GizmoOrientation) {
-		prepareAnimationData(this.camera, this.target, orientation);
+		this._radius = prepareAnimationData(this.camera, this.target, orientation);
 		this.animating = true;
 	}
 
@@ -478,15 +478,16 @@ function prepareAnimationData(
 			console.error('ViewHelper: Invalid axis.');
 	}
 
-	setRadius(camera, focusPoint);
-	prepareQuaternions(camera, focusPoint);
+	const radius = setRadius(camera, focusPoint);
+	prepareQuaternions(camera, focusPoint, radius);
+	return radius;
 }
 
-function setRadius(camera: Camera, focusPoint: Vector3) {
-	radius = camera.position.distanceTo(focusPoint);
+function setRadius(camera: Camera, focusPoint: Vector3): number {
+	return camera.position.distanceTo(focusPoint);
 }
 
-function prepareQuaternions(camera: Camera, focusPoint: Vector3) {
+function prepareQuaternions(camera: Camera, focusPoint: Vector3, radius: number) {
 	targetPosition.multiplyScalar(radius).add(focusPoint);
 
 	dummy.position.copy(focusPoint);
