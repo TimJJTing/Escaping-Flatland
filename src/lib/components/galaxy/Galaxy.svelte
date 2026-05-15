@@ -1,6 +1,6 @@
 <script>
 	import * as THREE from 'three';
-	import { untrack } from 'svelte';
+	import { untrack, onDestroy } from 'svelte';
 	import { Settings, CircleQuestionMark } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import {
@@ -13,11 +13,10 @@
 		getSceneOptions,
 		setSelectedPoint
 	} from '$lib/components/providers/scene';
-	import { Particles } from '$lib/meshes/particles';
 	import { Star } from '$lib/meshes/star';
 	import { Planet } from '$lib/meshes/planet';
 	import { SolarSystem } from '$lib/meshes/solar-system';
-	import { Mesh, ParticleOctree } from '$lib/components/meshes';
+	import { Mesh, ParticleOctree, Particles } from '$lib/components/meshes';
 	import { HemisphereLight } from '$lib/components/lights';
 	import { InteractionManager } from '$lib/components/interaction';
 	import { OptionModal } from '$lib/components/modals/option';
@@ -43,8 +42,6 @@
 		return (DATA_SOURCES.find((s) => s.id === srcId) ?? DATA_SOURCES[0]).generate(palette);
 	});
 
-	let particles = $derived(new Particles(starData.positions, starData.colors, starData.groups));
-
 	// Background center star (always present)
 	const star = new Star(new THREE.Vector3(1, 1, 1), 1);
 
@@ -57,6 +54,15 @@
 	const solarStar = new Star(new THREE.Vector3(1, 0.8, 0.3), 2, 1);
 	const solarSystem = new SolarSystem(solarStar, 'selected-star');
 	solarSystem.visible = false;
+
+	onDestroy(() => {
+		// planetPool items removed via removePlanet() are absent from solarSystem.planets
+		// and won't be disposed by solarSystem.dispose() (called by <Mesh onDestroy>)
+		const managed = new Set(solarSystem.planets);
+		for (const p of planetPool) {
+			if (!managed.has(p)) p.dispose();
+		}
+	});
 
 	// Reset selection when data source changes (avoids stale starIndex)
 	let prevDataSourceId = dataOpts.dataSourceId;
@@ -166,7 +172,11 @@
 	<Mesh mesh={star} postprocess />
 	<Mesh mesh={solarSystem} postprocess />
 	{#key dataOpts.dataSourceId}
-		<Mesh mesh={particles} />
+		<Particles
+			positions={starData.positions}
+			colors={starData.colors}
+			groups={starData.groups}
+		/>
 		<ParticleOctree
 			groupColors={palette}
 			positions={starData.positions}
