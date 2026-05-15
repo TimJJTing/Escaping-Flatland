@@ -32,14 +32,14 @@
 	setDataOptions();
 	setParticleOptions();
 	setSceneOptions();
-	const selectedPoint = setSelectedPoint();
-	const dataOptions = getDataOptions();
-	const sceneOptions = getSceneOptions();
-	const particleOptions = getParticleOptions();
+	const sel = setSelectedPoint();
+	const dataOpts = getDataOptions();
+	const sceneOpts = getSceneOptions();
+	const particleOpts = getParticleOptions();
 
 	// Reactive data — re-generates only when dataSourceId changes
 	let starData = $derived.by(() => {
-		const srcId = $dataOptions.dataSourceId;
+		const srcId = dataOpts.dataSourceId;
 		return (DATA_SOURCES.find((s) => s.id === srcId) ?? DATA_SOURCES[0]).generate(palette);
 	});
 
@@ -59,20 +59,20 @@
 	solarSystem.visible = false;
 
 	// Reset selection when data source changes (avoids stale starIndex)
-	let prevDataSourceId = $dataOptions.dataSourceId;
+	let prevDataSourceId = dataOpts.dataSourceId;
 	$effect(() => {
-		const id = $dataOptions.dataSourceId;
+		const id = dataOpts.dataSourceId;
 		if (id !== prevDataSourceId) {
 			const label = DATA_SOURCES.find((s) => s.id === id)?.label ?? id;
 			toast(`Data Source: ${label}`);
 			prevDataSourceId = id;
-			selectedPoint.set(null);
+			sel.selectedPoint = null;
 		}
 	});
 
 	// Configure and show solar system on star click
 	$effect(() => {
-		const sp = $selectedPoint;
+		const sp = sel.selectedPoint;
 		if (!sp) {
 			solarSystem.visible = false;
 			return;
@@ -108,11 +108,11 @@
 	let optionModalVisible = $state(false);
 	let helpModalVisible = $state(false);
 
-	let prevScene = { ...$sceneOptions };
-	let prevParticle = { ...$particleOptions };
+	let prevScene = { ...sceneOpts };
+	let prevParticle = { ...particleOpts };
 
 	$effect(() => {
-		const opts = $sceneOptions;
+		const opts = sceneOpts;
 		if (opts.autoRotateEnabled !== prevScene.autoRotateEnabled)
 			toast(`Auto Rotate: ${opts.autoRotateEnabled ? 'On' : 'Off'}`);
 		if (opts.viewHelperEnabled !== prevScene.viewHelperEnabled)
@@ -124,7 +124,7 @@
 	});
 
 	$effect(() => {
-		const opts = $particleOptions;
+		const opts = particleOpts;
 		if (opts.labelsEnabled !== prevParticle.labelsEnabled)
 			toast(`Labels: ${opts.labelsEnabled ? 'On' : 'Off'}`);
 		if (opts.octantHelperEnabled !== prevParticle.octantHelperEnabled)
@@ -161,11 +161,11 @@
 
 <LoadingOverlay loading={!frustumCullerRef} />
 
-<Scene stats={$sceneOptions.debugModeEnabled}>
+<Scene stats={sceneOpts.debugModeEnabled}>
 	<HemisphereLight skyColor={0xffffff} groundColor={0x888888} intensity={3} />
 	<Mesh mesh={star} postprocess />
 	<Mesh mesh={solarSystem} postprocess />
-	{#key $dataOptions.dataSourceId}
+	{#key dataOpts.dataSourceId}
 		<Mesh mesh={particles} />
 		<ParticleOctree
 			groupColors={palette}
@@ -177,7 +177,7 @@
 		/>
 	{/key}
 	<InteractionManager {frustumCullerRef} />
-	{#if $sceneOptions.debugModeEnabled}
+	{#if sceneOpts.debugModeEnabled}
 		<DebugPanel />
 	{/if}
 </Scene>

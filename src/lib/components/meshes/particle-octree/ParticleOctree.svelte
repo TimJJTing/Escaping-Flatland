@@ -1,12 +1,6 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import {
-		getScene,
-		getCamera,
-		getFuncPipelines,
-		getPostprocessor,
-		getParticleOptions
-	} from '$lib/components/providers/scene';
+	import { getSceneContext, getParticleOptions } from '$lib/components/providers/scene';
 	import { buildPointOctree } from '$lib/utils/buildPointOctree';
 	import { FrustumCuller } from '$lib/utils/FrustumCuller';
 	import { usePostProcessor } from '../utils';
@@ -43,66 +37,63 @@
 	let fcLDParticles = $state(undefined);
 
 	const id = {};
-	const scene = getScene();
-	const camera = getCamera();
-	const funcPipelines = getFuncPipelines();
-	const postprocessor = getPostprocessor();
-	const particleOptions = getParticleOptions();
+	const ctx = getSceneContext();
+	const particleOpts = getParticleOptions();
 
 	$effect(() => {
-		usePostProcessor(postprocess, $postprocessor, fcHDParticles);
+		usePostProcessor(postprocess, ctx.postprocessor, fcHDParticles);
 	});
 	$effect(() => {
-		usePostProcessor(postprocess, $postprocessor, fcSDParticles);
+		usePostProcessor(postprocess, ctx.postprocessor, fcSDParticles);
 	});
 	$effect(() => {
-		usePostProcessor(postprocess, $postprocessor, fcLDParticles);
+		usePostProcessor(postprocess, ctx.postprocessor, fcLDParticles);
 	});
 
 	$effect(() => {
 		if (!frustumCuller) return;
-		frustumCuller.getLabels().visible = $particleOptions.labelsEnabled;
+		frustumCuller.getLabels().visible = particleOpts.labelsEnabled;
 	});
 
 	$effect(() => {
 		if (!frustumCuller) return;
-		frustumCuller.getOctantHelper().visible = $particleOptions.octantHelperEnabled;
+		frustumCuller.getOctantHelper().visible = particleOpts.octantHelperEnabled;
 	});
 
 	onMount(() => {
-		if ($scene && $camera) {
-			octree = buildPointOctree($scene, positions, groups, ids);
+		if (ctx.scene && ctx.camera) {
+			octree = buildPointOctree(ctx.scene, positions, groups, ids);
 
-			frustumCuller = new FrustumCuller(octree, $camera, 500, 600);
+			frustumCuller = new FrustumCuller(octree, ctx.camera, 500, 600);
 			frustumCullerRef = frustumCuller;
 			fcHDParticles = frustumCuller.getHDMesh();
-			$scene.add(fcHDParticles);
+			ctx.scene.add(fcHDParticles);
 
 			fcSDParticles = frustumCuller.getSDMesh();
-			$scene.add(fcSDParticles);
+			ctx.scene.add(fcSDParticles);
 
 			fcLDParticles = frustumCuller.getLDMesh();
-			$scene.add(fcLDParticles);
+			ctx.scene.add(fcLDParticles);
 
-			$scene.add(frustumCuller.getLabels());
-			$scene.add(frustumCuller.getOctantHelper());
+			ctx.scene.add(frustumCuller.getLabels());
+			ctx.scene.add(frustumCuller.getOctantHelper());
 
 			frustumCuller.cull(groupColors);
 
-			$funcPipelines.registerCameraFunc(id, () => {
+			ctx.registerCameraFunc(id, () => {
 				frustumCuller?.cull(groupColors);
 			});
 		}
 	});
 
 	onDestroy(() => {
-		$funcPipelines.deregisterCameraFunc(id);
+		ctx.deregisterCameraFunc(id);
 		if (frustumCuller) {
-			$scene?.remove(frustumCuller.getHDMesh());
-			$scene?.remove(frustumCuller.getSDMesh());
-			$scene?.remove(frustumCuller.getLDMesh());
-			$scene?.remove(frustumCuller.getLabels());
-			$scene?.remove(frustumCuller.getOctantHelper());
+			ctx.scene?.remove(frustumCuller.getHDMesh());
+			ctx.scene?.remove(frustumCuller.getSDMesh());
+			ctx.scene?.remove(frustumCuller.getLDMesh());
+			ctx.scene?.remove(frustumCuller.getLabels());
+			ctx.scene?.remove(frustumCuller.getOctantHelper());
 			frustumCuller.dispose();
 		}
 	});

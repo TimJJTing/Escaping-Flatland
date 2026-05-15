@@ -10,9 +10,9 @@
 	/** @type {{ visible?: boolean }} */
 	let { visible = $bindable(false) } = $props();
 
-	let dataOptions = getDataOptions();
-	let particleOptions = getParticleOptions();
-	let sceneOptions = getSceneOptions();
+	const dataOpts = getDataOptions();
+	const particleOpts = getParticleOptions();
+	const sceneOpts = getSceneOptions();
 </script>
 
 <Dialog.Root bind:open={visible}>
@@ -34,7 +34,7 @@
 						Labels
 						<span class="text-xs text-gray-500 block">Show point index labels on nearby stars</span>
 					</Label>
-					<Switch id="labels-toggle"  bind:checked={$particleOptions.labelsEnabled} />
+					<Switch id="labels-toggle"  bind:checked={particleOpts.labelsEnabled} />
 				</div>
 
 				<div class="flex items-center justify-between">
@@ -42,7 +42,7 @@
 						View Helper
 						<span class="text-xs text-gray-500 block">Orientation gizmo in the corner</span>
 					</Label>
-					<Switch id="viewhelper-toggle"  bind:checked={$sceneOptions.viewHelperEnabled} />
+					<Switch id="viewhelper-toggle"  bind:checked={sceneOpts.viewHelperEnabled} />
 				</div>
 
 				<div class="flex items-center justify-between">
@@ -50,7 +50,7 @@
 						Auto Rotate
 						<span class="text-xs text-gray-500 block">Slowly spin the camera around the scene</span>
 					</Label>
-					<Switch id="rotate-toggle"  bind:checked={$sceneOptions.autoRotateEnabled} />
+					<Switch id="rotate-toggle"  bind:checked={sceneOpts.autoRotateEnabled} />
 				</div>
 
 				<div class="flex items-center justify-between">
@@ -60,7 +60,7 @@
 					</Label>
 					<select
 						class="bg-[#2a2a2f] border border-[#444] text-white text-sm px-2 py-1 rounded"
-						bind:value={$dataOptions.dataSourceId}
+						bind:value={dataOpts.dataSourceId}
 					>
 						{#each DATA_SOURCES as src}
 							<option value={src.id}>{src.label}</option>
@@ -75,7 +75,7 @@
 						Blooming
 						<span class="text-xs text-gray-500 block">Selective bloom post-processing effect</span>
 					</Label>
-					<Switch id="blooming-toggle" bind:checked={$sceneOptions.blooming} />
+					<Switch id="blooming-toggle" bind:checked={sceneOpts.blooming} />
 				</div>
 			</Tabs.Content>
 
@@ -85,7 +85,7 @@
 						Debug Mode
 						<span class="text-xs text-gray-500 block">Show stats panel (FPS, MS, MB) and camera position / renderer info overlay</span>
 					</Label>
-					<Switch id="debug-toggle" bind:checked={$sceneOptions.debugModeEnabled} />
+					<Switch id="debug-toggle" bind:checked={sceneOpts.debugModeEnabled} />
 				</div>
 
 				<div class="flex items-center justify-between">
@@ -93,7 +93,7 @@
 						Octant Helper
 						<span class="text-xs text-gray-500 block">Show translucent octree bounding boxes</span>
 					</Label>
-					<Switch id="octant-toggle" bind:checked={$particleOptions.octantHelperEnabled} />
+					<Switch id="octant-toggle" bind:checked={particleOpts.octantHelperEnabled} />
 				</div>
 			</Tabs.Content>
 		</Tabs.Root>

@@ -8,7 +8,7 @@
   /** @type {{ starData: import('$lib/utils/dataSources.js').StarData }} */
   let { starData } = $props();
 
-  const selectedPoint = getSelectedPoint();
+  const sel = getSelectedPoint();
   let dismissed = $state(true);
 
   let vals = $state({
@@ -32,7 +32,7 @@
   }
 
   $effect(() => {
-    const sp = $selectedPoint;
+    const sp = sel.selectedPoint;
     if (!sp) {
       vals.speed = vals.planets = vals.group = vals.rotA = vals.rotB = vals.rotC = null;
       return;
@@ -56,7 +56,7 @@
       <!-- Header -->
       <div class="mb-3 flex items-center justify-between">
         <span class="font-mono text-[10px] uppercase tracking-widest text-gray-500">
-          {$selectedPoint != null ? `Star #${$selectedPoint.starIndex}` : 'No star selected'}
+          {sel.selectedPoint != null ? `Star #${sel.selectedPoint.starIndex}` : 'No star selected'}
         </span>
         <button
           class="flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white/40 transition-colors hover:bg-white/15 hover:text-white"
@@ -123,4 +123,3 @@
       <ChartLine size={16} />
     </button>
   {/if}
-

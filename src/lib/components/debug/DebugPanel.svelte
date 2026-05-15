@@ -1,18 +1,17 @@
 <script>
-	import { getCamPos, getRenderInfo } from '$lib/components/providers/scene';
+	import { getSceneContext } from '$lib/components/providers/scene';
 
-	const camPos = getCamPos();
-	const renderInfo = getRenderInfo();
+	const ctx = getSceneContext();
 
 	const rows = $derived([
-		['cam_x',     Math.floor($camPos.x)],
-		['cam_y',     Math.floor($camPos.y)],
-		['cam_z',     Math.floor($camPos.z)],
-		['frame',     $renderInfo.frame],
-		['calls',     $renderInfo.calls],
-		['triangles', $renderInfo.triangles],
-		['points',    $renderInfo.points],
-		['lines',     $renderInfo.lines],
+		['cam_x',     Math.floor(ctx.camPos.x)],
+		['cam_y',     Math.floor(ctx.camPos.y)],
+		['cam_z',     Math.floor(ctx.camPos.z)],
+		['frame',     ctx.renderInfo.frame],
+		['calls',     ctx.renderInfo.calls],
+		['triangles', ctx.renderInfo.triangles],
+		['points',    ctx.renderInfo.points],
+		['lines',     ctx.renderInfo.lines],
 	]);
 </script>
 

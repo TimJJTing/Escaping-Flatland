@@ -1,11 +1,11 @@
 <script>
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
-	import { getScene } from '$lib/components/providers/scene';
+	import { getSceneContext } from '$lib/components/providers/scene';
 
-	
-	
-	
+
+
+
 	/**
 	 * @typedef {Object} Props
 	 * @property {THREE.ColorRepresentation} skyColor
@@ -16,7 +16,7 @@
 	/** @type {Props} */
 	let { skyColor, groundColor, intensity } = $props();
 
-	const scene = getScene();
+	const ctx = getSceneContext();
 
 	/**
 	 * @type {THREE.HemisphereLight}
@@ -24,15 +24,15 @@
 	let light;
 
 	onMount(() => {
-		if ($scene) {
+		if (ctx.scene) {
 			light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
 			// light direction: default = up -> down
 			light.position.set(0, 1, 0);
-			$scene.add(light);
+			ctx.scene.add(light);
 		}
 		return () => {
 			if (light) {
-				$scene?.remove(light);
+				ctx.scene?.remove(light);
 				light.dispose();
 			}
 		};

@@ -1,12 +1,8 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import {
-		getScene,
-		getFuncPipelines,
-		getPostprocessor
-	} from '$lib/components/providers/scene';
+	import { getSceneContext } from '$lib/components/providers/scene';
 	import { usePostProcessor, useRaycast } from '../utils';
-	
+
 	/**
 	 * @typedef {Object} Props
 	 * @property {any} mesh - mesh to add into scene
@@ -18,30 +14,28 @@
 	let { mesh, raycast = false, postprocess = false } = $props();
 
 	const id = {};
-	const scene = getScene();
-	const funcPipelines = getFuncPipelines();
-	const postprocessor = getPostprocessor();
+	const ctx = getSceneContext();
 
 	$effect(() => {
 		useRaycast(raycast, mesh?.getMesh());
 	});
 	$effect(() => {
-		usePostProcessor(postprocess, $postprocessor, mesh?.getMesh());
+		usePostProcessor(postprocess, ctx.postprocessor, mesh?.getMesh());
 	});
 
 	onMount(() => {
 		// add mesh into scene
-		if ($scene) {
-			$scene.add(mesh.getMesh());
+		if (ctx.scene) {
+			ctx.scene.add(mesh.getMesh());
 		}
-		$funcPipelines.registerUpdateFunc(id, () => {
+		ctx.registerUpdateFunc(id, () => {
 			mesh.update();
 		});
 	});
 
 	onDestroy(() => {
-		$funcPipelines.deregisterUpdateFunc(id);
-		$scene?.remove(mesh.getMesh());
+		ctx.deregisterUpdateFunc(id);
+		ctx.scene?.remove(mesh.getMesh());
 		mesh.dispose();
 	});
 </script>

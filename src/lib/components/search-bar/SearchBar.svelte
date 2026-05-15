@@ -11,12 +11,12 @@
 
 	let inputValue = $state('');
 
-	const selectedPoint = getSelectedPoint();
+	const sel = getSelectedPoint();
 
 	// Sync input when scene click updates selectedPoint.
 	// Safe — search fires only via keydown+Enter on a focused input, never from a reactive effect on inputValue.
 	$effect(() => {
-		const sp = $selectedPoint;
+		const sp = sel.selectedPoint;
 		inputValue = sp ? String(sp.starIndex) : '';
 	});
 
@@ -24,7 +24,7 @@
 		const trimmed = inputValue.trim();
 
 		if (!trimmed) {
-			selectedPoint.set(null);
+			sel.selectedPoint = null;
 			return;
 		}
 
@@ -42,7 +42,7 @@
 			return;
 		}
 
-		if (parsed === $selectedPoint?.starIndex) {
+		if (parsed === sel.selectedPoint?.starIndex) {
 			toast(`Star #${parsed} already focused`);
 			return;
 		}
@@ -52,7 +52,7 @@
 			positions[parsed * 3 + 1],
 			positions[parsed * 3 + 2]
 		);
-		selectedPoint.set({ starIndex: parsed, worldPosition });
+		sel.selectedPoint = { starIndex: parsed, worldPosition };
 	};
 
 	/** @param {KeyboardEvent} e */
