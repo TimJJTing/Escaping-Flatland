@@ -106,24 +106,24 @@ export class FrustumCuller {
 	 * maximum distance for high detailed meshes and labels
 	 */
 
-	private maxHdDistance: number;
+	private maxHDDistance: number;
 
 	/**
 	 * maximum distance squared for high detailed meshes and labels
 	 */
 
-	private maxHdDistanceSq: number;
+	private maxHDDistanceSq: number;
 	/**
 	 * maximum distance for detailed meshes and labels
 	 */
 
-	private maxSdDistance: number;
+	private maxSDDistance: number;
 
 	/**
 	 * maximum distance squared for detailed meshes and labels
 	 */
 
-	private maxSdDistanceSq: number;
+	private maxSDDistanceSq: number;
 
 	/**
 	 * A mesh that represents intersecting octants.
@@ -177,10 +177,10 @@ export class FrustumCuller {
 		this.cameraHelper = new CameraHelper(this.cullCamera);
 		this.maxOctantHelperCount = 2500;
 
-		this.maxHdDistance = 150;
-		this.maxHdDistanceSq = this.maxHdDistance * this.maxHdDistance;
-		this.maxSdDistance = 300;
-		this.maxSdDistanceSq = this.maxSdDistance * this.maxSdDistance;
+		this.maxHDDistance = 150;
+		this.maxHDDistanceSq = this.maxHDDistance * this.maxHDDistance;
+		this.maxSDDistance = 300;
+		this.maxSDDistanceSq = this.maxSDDistance * this.maxSDDistance;
 
 		this.labelSprites = new InstancedLabelSprites(camera);
 
@@ -388,9 +388,9 @@ export class FrustumCuller {
 
 						// if the octant is within the distance, it might contains HD/SD meshes
 						const octantContainsHDMesh =
-							x.distanceToSquared(this.cullCamera.position) < this.maxHdDistanceSq;
+							x.distanceToSquared(this.cullCamera.position) < this.maxHDDistanceSq;
 						const octantContainsSDMesh =
-							x.distanceToSquared(this.cullCamera.position) < this.maxSdDistanceSq;
+							x.distanceToSquared(this.cullCamera.position) < this.maxSDDistanceSq;
 						// iterate through points in the octant
 						for (let pidx = 0; pidx < x.data.points.length; pidx++) {
 							if (ldpts >= maxLDMeshCount) break;
@@ -422,7 +422,7 @@ export class FrustumCuller {
 									octantContainsHDMesh &&
 									hdpts < maxHDMeshCount &&
 									x.data.points[pidx].distanceToSquared(this.cullCamera.position) <
-										this.maxHdDistanceSq
+										this.maxHDDistanceSq
 								) {
 									hdMesh.setMatrixAt(hdpts, tempObj.matrix);
 									hdMesh.setColorAt(hdpts, tempColor);
@@ -435,7 +435,7 @@ export class FrustumCuller {
 									octantContainsSDMesh &&
 									sdpts < maxSDMeshCount &&
 									x.data.points[pidx].distanceToSquared(this.cullCamera.position) <
-										this.maxSdDistanceSq
+										this.maxSDDistanceSq
 								) {
 									sdMesh.setMatrixAt(sdpts, tempObj.matrix);
 									sdMesh.setColorAt(sdpts, tempColor);
