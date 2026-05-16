@@ -23,6 +23,7 @@
 		// add mesh into scene
 		if (ctx.scene) {
 			ctx.scene.add(mesh.getMesh());
+			ctx.postprocessor?.invalidateCache();
 		}
 		ctx.registerUpdateFunc(id, () => {
 			mesh.update();
@@ -32,6 +33,7 @@
 	onDestroy(() => {
 		ctx.deregisterUpdateFunc(id);
 		ctx.scene?.remove(mesh.getMesh());
+		ctx.postprocessor?.invalidateCache();
 		mesh.dispose();
 	});
 </script>
