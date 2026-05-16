@@ -83,3 +83,31 @@ describe('SelectiveBloom._buildCache', () => {
 		expect(sb._cacheValid).toBe(false);
 	});
 });
+
+describe('SelectiveBloom.add incremental cache update', () => {
+	it('removes mesh from _nonBloomMeshes when add() is called', () => {
+		const scene = makeScene();
+		const mesh = makeMesh(false);
+		scene.add(mesh);
+
+		const sb = new SelectiveBloom(makeRenderer(), scene, makeCamera(), 1);
+		// @ts-ignore
+		sb._buildCache();
+		// @ts-ignore
+		expect(sb._nonBloomMeshes).toContain(mesh);
+
+		sb.add(mesh);
+		// @ts-ignore
+		expect(sb._nonBloomMeshes).not.toContain(mesh);
+	});
+
+	it('does not corrupt cache when add() is called on mesh not in cache', () => {
+		const scene = makeScene();
+		const mesh = makeMesh(false);
+		// mesh not in scene, not in cache
+		const sb = new SelectiveBloom(makeRenderer(), scene, makeCamera(), 1);
+		// @ts-ignore
+		sb._buildCache();
+		expect(() => sb.add(mesh)).not.toThrow();
+	});
+});

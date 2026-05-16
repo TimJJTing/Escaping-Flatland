@@ -161,6 +161,12 @@ export class SelectiveBloom {
 		obj.traverse((o) => {
 			if ((o.isMesh || o.isPoints) && o.material) {
 				o.layers.enable(this.bloomScene);
+				if (this._cacheValid) {
+					const mi = this._nonBloomMeshes.indexOf(o);
+					if (mi !== -1) this._nonBloomMeshes.splice(mi, 1);
+					const pi = this._nonBloomPoints.indexOf(o);
+					if (pi !== -1) this._nonBloomPoints.splice(pi, 1);
+				}
 			}
 		});
 	}
