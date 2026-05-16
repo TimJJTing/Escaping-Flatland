@@ -163,3 +163,123 @@ describe('SelectiveBloom.remove incremental cache update', () => {
 		expect(sb._nonBloomMeshes).not.toContain(pts);
 	});
 });
+
+describe('SelectiveBloom.render() material handling', () => {
+	it('darkens non-bloom meshes during bloom pass then restores', () => {
+		const scene = makeScene();
+		const nonBloom = makeMesh(false);
+		const originalMat = nonBloom.material;
+		scene.add(nonBloom);
+
+		const sb = new SelectiveBloom(makeRenderer(), scene, makeCamera(), 1);
+		// Spy: capture material state during bloomComposer.render
+		let matDuringBloom;
+		sb.bloomComposer.render = vi.fn(() => {
+			matDuringBloom = nonBloom.material;
+		});
+		sb.finalComposer.render = vi.fn();
+
+		sb.render();
+
+		expect(matDuringBloom).toBe(sb._darkMaterial); // darkened during bloom
+		expect(nonBloom.material).toBe(originalMat);   // restored after
+	});
+
+	it('hides visible points during bloom pass then restores visibility', () => {
+		const scene = makeScene();
+		const pts = new THREE.Points(
+			new THREE.BufferGeometry(),
+			new THREE.PointsMaterial()
+		);
+		pts.visible = true;
+		scene.add(pts);
+
+		const sb = new SelectiveBloom(makeRenderer(), scene, makeCamera(), 1);
+		let visibleDuringBloom;
+		sb.bloomComposer.render = vi.fn(() => {
+			visibleDuringBloom = pts.visible;
+		});
+		sb.finalComposer.render = vi.fn();
+
+		sb.render();
+
+		expect(visibleDuringBloom).toBe(false); // hidden during bloom
+		expect(pts.visible).toBe(true);          // restored after
+	});
+
+	it('does not hide already-hidden points objects', () => {
+		const scene = makeScene();
+		const pts = new THREE.Points(
+			new THREE.BufferGeometry(),
+			new THREE.PointsMaterial()
+		);
+		pts.visible = false; // already hidden
+		scene.add(pts);
+
+		const sb = new SelectiveBloom(makeRenderer(), scene, makeCamera(), 1);
+		sb.bloomComposer.render = vi.fn();
+		sb.finalComposer.render = vi.fn();
+
+		sb.render();
+
+		// Should NOT be in _hiddenObjects — restoring it would incorrectly make it visible
+		// @ts-ignore
+		expect(sb._hiddenObjects).not.toContain(pts);
+		expect(pts.visible).toBe(false);
+	});
+
+	it('skips objects with null material (stale cache guard)', () => {
+		const scene = makeScene();
+		const mesh = makeMesh(false);
+		scene.add(mesh);
+
+		const sb = new SelectiveBloom(makeRenderer(), scene, makeCamera(), 1);
+		// @ts-ignore
+		sb._buildCache(); // populate cache
+
+		// Simulate stale cache: material removed externally
+		mesh.material = null;
+
+		sb.bloomComposer.render = vi.fn();
+		sb.finalComposer.render = vi.fn();
+
+		expect(() => sb.render()).not.toThrow();
+	});
+
+	it('handles multi-material mesh (array material)', () => {
+		const scene = makeScene();
+		const mesh = new THREE.Mesh(new THREE.BufferGeometry(), [
+			new THREE.MeshBasicMaterial({ color: 0xff0000 }),
+			new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+		]);
+		const originalMats = mesh.material;
+		scene.add(mesh);
+
+		const sb = new SelectiveBloom(makeRenderer(), scene, makeCamera(), 1);
+		sb.bloomComposer.render = vi.fn();
+		sb.finalComposer.render = vi.fn();
+
+		sb.render();
+
+		expect(mesh.material).toBe(originalMats); // array reference restored intact
+	});
+
+	it('triggers _buildCache lazily on first render when cache invalid', () => {
+		const scene = makeScene();
+		const mesh = makeMesh(false);
+		scene.add(mesh);
+
+		const sb = new SelectiveBloom(makeRenderer(), scene, makeCamera(), 1);
+		sb.bloomComposer.render = vi.fn();
+		sb.finalComposer.render = vi.fn();
+		// @ts-ignore
+		expect(sb._cacheValid).toBe(false);
+
+		sb.render();
+
+		// @ts-ignore
+		expect(sb._cacheValid).toBe(true);
+		// @ts-ignore
+		expect(sb._nonBloomMeshes).toContain(mesh);
+	});
+});
