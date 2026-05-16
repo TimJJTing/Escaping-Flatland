@@ -129,6 +129,30 @@ export class SelectiveBloom {
 		return finalComposer;
 	}
 
+	_buildCache() {
+		this._nonBloomMeshes.length = 0;
+		this._nonBloomPoints.length = 0;
+		this._scene.traverse((obj) => {
+			if (!(obj.isMesh || obj.isPoints) || !obj.material) return;
+			if (this.bloomLayer.test(obj.layers)) return;
+			if (obj.isInstancedLabelSprites || obj.isPoints) {
+				this._nonBloomPoints.push(obj);
+			} else {
+				this._nonBloomMeshes.push(obj);
+			}
+		});
+		this._cacheValid = true;
+	}
+
+	/**
+	 * Call after adding or removing objects directly from the scene (outside of
+	 * SelectiveBloom.add / SelectiveBloom.remove) to force a cache rebuild on
+	 * the next render.
+	 */
+	invalidateCache() {
+		this._cacheValid = false;
+	}
+
 	/**
 	 * Add new object to this post effect
 	 * @param {THREE.Object3D} obj
