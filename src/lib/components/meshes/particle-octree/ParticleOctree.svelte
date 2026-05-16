@@ -76,6 +76,7 @@
 
 			ctx.scene.add(frustumCuller.getLabels());
 			ctx.scene.add(frustumCuller.getOctantHelper());
+			ctx.postprocessor?.invalidateCache();
 
 			frustumCuller.cull(groupColors);
 
@@ -93,6 +94,7 @@
 			ctx.scene?.remove(frustumCuller.getLDMesh());
 			ctx.scene?.remove(frustumCuller.getLabels());
 			ctx.scene?.remove(frustumCuller.getOctantHelper());
+			ctx.postprocessor?.invalidateCache();
 			frustumCuller.dispose();
 		}
 	});
