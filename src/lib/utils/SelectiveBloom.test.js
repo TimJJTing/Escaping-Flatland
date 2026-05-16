@@ -111,3 +111,55 @@ describe('SelectiveBloom.add incremental cache update', () => {
 		expect(() => sb.add(mesh)).not.toThrow();
 	});
 });
+
+describe('SelectiveBloom.remove incremental cache update', () => {
+	it('adds mesh back to _nonBloomMeshes when remove() is called on a bloom mesh', () => {
+		const scene = makeScene();
+		const mesh = makeMesh(true); // starts on bloom layer
+		scene.add(mesh);
+
+		const sb = new SelectiveBloom(makeRenderer(), scene, makeCamera(), 1);
+		// @ts-ignore
+		sb._buildCache();
+		// @ts-ignore
+		expect(sb._nonBloomMeshes).not.toContain(mesh);
+
+		sb.remove(mesh);
+		// @ts-ignore
+		expect(sb._nonBloomMeshes).toContain(mesh);
+	});
+
+	it('does not add duplicates when remove() called twice', () => {
+		const scene = makeScene();
+		const mesh = makeMesh(true);
+		scene.add(mesh);
+
+		const sb = new SelectiveBloom(makeRenderer(), scene, makeCamera(), 1);
+		// @ts-ignore
+		sb._buildCache();
+		sb.remove(mesh);
+		sb.remove(mesh); // second call — should not duplicate
+		// @ts-ignore
+		const count = sb._nonBloomMeshes.filter((m) => m === mesh).length;
+		expect(count).toBe(1);
+	});
+
+	it('adds points-like objects to _nonBloomPoints not _nonBloomMeshes', () => {
+		const scene = makeScene();
+		const pts = new THREE.Points(
+			new THREE.BufferGeometry(),
+			new THREE.PointsMaterial()
+		);
+		pts.layers.enable(1);
+		scene.add(pts);
+
+		const sb = new SelectiveBloom(makeRenderer(), scene, makeCamera(), 1);
+		// @ts-ignore
+		sb._buildCache();
+		sb.remove(pts);
+		// @ts-ignore
+		expect(sb._nonBloomPoints).toContain(pts);
+		// @ts-ignore
+		expect(sb._nonBloomMeshes).not.toContain(pts);
+	});
+});

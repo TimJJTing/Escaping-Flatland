@@ -179,6 +179,13 @@ export class SelectiveBloom {
 		obj.traverse((o) => {
 			if ((o.isMesh || o.isPoints) && o.material) {
 				o.layers.disable(this.bloomScene);
+				if (this._cacheValid) {
+					if (o.isInstancedLabelSprites || o.isPoints) {
+						if (!this._nonBloomPoints.includes(o)) this._nonBloomPoints.push(o);
+					} else if (o.isMesh) {
+						if (!this._nonBloomMeshes.includes(o)) this._nonBloomMeshes.push(o);
+					}
+				}
 			}
 		});
 	}
