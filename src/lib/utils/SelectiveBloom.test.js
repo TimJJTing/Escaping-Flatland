@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import * as THREE from 'three';
 
 // Minimal stubs — avoids WebGL requirement
@@ -62,17 +62,24 @@ describe('SelectiveBloom._buildCache', () => {
 		scene.add(bloom);
 
 		const sb = new SelectiveBloom(makeRenderer(), scene, makeCamera(), 1);
+		// @ts-ignore - _buildCache is private
 		sb._buildCache();
 
+		// @ts-ignore - _nonBloomMeshes is private
 		expect(sb._nonBloomMeshes).toContain(nonBloom);
+		// @ts-ignore - _nonBloomMeshes is private
 		expect(sb._nonBloomMeshes).not.toContain(bloom);
+		// @ts-ignore - _cacheValid is private
 		expect(sb._cacheValid).toBe(true);
 	});
 
 	it('sets _cacheValid to false after invalidateCache()', () => {
 		const sb = new SelectiveBloom(makeRenderer(), makeScene(), makeCamera(), 1);
+		// @ts-ignore - _cacheValid is private
 		sb._cacheValid = true;
+		// @ts-ignore - invalidateCache is private
 		sb.invalidateCache();
+		// @ts-ignore - _cacheValid is private
 		expect(sb._cacheValid).toBe(false);
 	});
 });

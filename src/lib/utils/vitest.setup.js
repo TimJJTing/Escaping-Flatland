@@ -1,4 +1,5 @@
 if (!globalThis.window) {
+  // @ts-ignore - stub object not assignable to Window type; acceptable in test env
   globalThis.window = { innerWidth: 800, innerHeight: 600 };
 }
 
