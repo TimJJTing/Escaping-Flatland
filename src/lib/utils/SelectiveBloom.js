@@ -288,5 +288,10 @@ export class SelectiveBloom {
 		this._mixPass.material.dispose();
 		this.bloomComposer.dispose();
 		this.finalComposer.dispose();
+		this._nonBloomedObjs.length = 0;
+		this._nonBloomedMats.length = 0;
+		this._hiddenObjects.length = 0;
+		this._nonBloomMeshes.length = 0;
+		this._nonBloomPoints.length = 0;
 	}
 }
