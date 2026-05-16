@@ -8,6 +8,7 @@ import {
 	Matrix4,
 	Mesh,
 	Quaternion,
+	Sphere,
 	Vector3,
 	Object3D,
 	Color,
@@ -18,11 +19,21 @@ import {
 import { InstancedLabelSprites } from '$lib/meshes/instanced-label-sprites';
 import type { Octree, PointOctant } from 'sparse-octree';
 
+type StarPoint = { index: number; group: number; id: string };
+
+// Module-scope scratch objects shared across all cull() calls to avoid per-frame GC pressure.
 const frustum = new Frustum();
 const m = new Matrix4();
 const s = new Vector3();
 const p = new Vector3();
 const q = new Quaternion();
+const tempObj = new Object3D();
+const tempColor = new Color();
+// Fixed bounding sphere covering the full scene. The raycaster uses this for its early-exit
+// sphere test before checking individual instances. Per-frame computeBoundingSphere() would
+// iterate all instance matrices every frame — this avoids that entirely.
+// frustumCulled=false means three.js never uses this sphere for visibility, only the raycaster does.
+const STAR_BOUNDS = new Sphere(new Vector3(), 50000);
 
 /**
  * A frustum-based octree culling helper.
@@ -40,6 +51,10 @@ export class FrustumCuller {
 	 */
 
 	private cullCamera: PerspectiveCamera;
+	// Persistent clone of cullCamera with a shorter far plane, used only to extract the frustum.
+	// Allocated once in the constructor; updateCamera() copies properties in-place each frame
+	// instead of cloning, which would allocate a full PerspectiveCamera + matrices every frame.
+	private _frustumCamera: PerspectiveCamera;
 
 	/**
 	 * A camera helper.
@@ -93,24 +108,24 @@ export class FrustumCuller {
 	 * maximum distance for high detailed meshes and labels
 	 */
 
-	private maxHdDistance: number;
+	private maxHDDistance: number;
 
 	/**
 	 * maximum distance squared for high detailed meshes and labels
 	 */
 
-	private maxHdDistanceSq: number;
+	private maxHDDistanceSq: number;
 	/**
 	 * maximum distance for detailed meshes and labels
 	 */
 
-	private maxSdDistance: number;
+	private maxSDDistance: number;
 
 	/**
 	 * maximum distance squared for detailed meshes and labels
 	 */
 
-	private maxSdDistanceSq: number;
+	private maxSDDistanceSq: number;
 
 	/**
 	 * A mesh that represents intersecting octants.
@@ -154,6 +169,8 @@ export class FrustumCuller {
 	constructor(octree: Octree, camera: PerspectiveCamera, maxMeshCount: number, frustumFar: number) {
 		this.octree = octree;
 		this.cullCamera = camera;
+		this._frustumCamera = camera.clone() as PerspectiveCamera;
+		this._frustumCamera.far = frustumFar;
 
 		this.maxHDMeshCount = 128;
 		this.maxSDMeshCount = 128;
@@ -162,10 +179,10 @@ export class FrustumCuller {
 		this.cameraHelper = new CameraHelper(this.cullCamera);
 		this.maxOctantHelperCount = 2500;
 
-		this.maxHdDistance = 150;
-		this.maxHdDistanceSq = this.maxHdDistance * this.maxHdDistance;
-		this.maxSdDistance = 300;
-		this.maxSdDistanceSq = this.maxSdDistance * this.maxSdDistance;
+		this.maxHDDistance = 150;
+		this.maxHDDistanceSq = this.maxHDDistance * this.maxHDDistance;
+		this.maxSDDistance = 300;
+		this.maxSDDistanceSq = this.maxSDDistance * this.maxSDDistance;
 
 		this.labelSprites = new InstancedLabelSprites(camera);
 
@@ -223,6 +240,12 @@ export class FrustumCuller {
 		this.ldMesh.receiveShadow = false;
 		this.ldMesh.frustumCulled = false;
 		this.ldMesh.visible = true;
+		// Assign the fixed bounding sphere once so the raycaster can do its early-exit test
+		// without us recomputing it every frame. See STAR_BOUNDS comment above.
+		this.hdMesh.boundingSphere = STAR_BOUNDS;
+		this.sdMesh.boundingSphere = STAR_BOUNDS;
+		this.ldMesh.boundingSphere = STAR_BOUNDS;
+		this.labelSprites.mesh.boundingSphere = STAR_BOUNDS;
 
 		this.enabled = true;
 		this.time = '';
@@ -303,14 +326,18 @@ export class FrustumCuller {
 	 */
 
 	private updateCamera(): void {
-		const cullCamera = this.cullCamera.clone();
-		cullCamera.far = this.frustumFar;
-		cullCamera.updateProjectionMatrix();
-
-		cullCamera.updateMatrixWorld(true);
-
+		// Copy current camera state into _frustumCamera without allocating.
+		// far is intentionally not copied — _frustumCamera keeps its fixed frustumFar
+		// so the culling frustum is shorter than the render camera's far plane.
+		this._frustumCamera.fov = this.cullCamera.fov;
+		this._frustumCamera.aspect = this.cullCamera.aspect;
+		this._frustumCamera.near = this.cullCamera.near;
+		this._frustumCamera.position.copy(this.cullCamera.position);
+		this._frustumCamera.quaternion.copy(this.cullCamera.quaternion);
+		this._frustumCamera.updateProjectionMatrix();
+		this._frustumCamera.updateMatrixWorld(true);
 		frustum.setFromProjectionMatrix(
-			m.multiplyMatrices(cullCamera.projectionMatrix, cullCamera.matrixWorldInverse)
+			m.multiplyMatrices(this._frustumCamera.projectionMatrix, this._frustumCamera.matrixWorldInverse)
 		);
 	}
 
@@ -318,7 +345,7 @@ export class FrustumCuller {
 	 * Culls the octree.
 	 */
 
-	cull(groupColors?: [][], focusGroup?: number, filterArray?: number[]): void {
+	cull(groupColors?: number[][], focusGroup?: number, filterArray?: number[]): void {
 		const hdMesh = this.hdMesh;
 		const sdMesh = this.sdMesh;
 		const ldMesh = this.ldMesh;
@@ -334,9 +361,10 @@ export class FrustumCuller {
 
 			// cull the octree to get the intersections and sort them by squared distance to assure that meshes are iterated in the order of ascending distance
 			// we can do this because usually we do not have too many octants
-			const intersections = this.octree.cull(frustum).toSorted((a, b) => {
-				const x = a as PointOctant<Object3D>;
-				const y = b as PointOctant<Object3D>;
+			const intersections = this.octree.cull(frustum);
+			intersections.sort((a, b) => {
+				const x = a as PointOctant<StarPoint>;
+				const y = b as PointOctant<StarPoint>;
 				return (
 					x.distanceToSquared(this.cullCamera.position) -
 					y.distanceToSquared(this.cullCamera.position)
@@ -351,7 +379,7 @@ export class FrustumCuller {
 			octantHelper.count = Math.min(this.maxOctantHelperCount, intersections.length);
 			if (intersections.length > 0) {
 				for (let i = 0, l = intersections.length; i < l; ++i) {
-					const x = intersections[i] as PointOctant<Object3D>;
+					const x = intersections[i] as PointOctant<StarPoint>;
 
 					// if the intersected octant contains points
 					if (x.data?.points?.length) {
@@ -360,23 +388,18 @@ export class FrustumCuller {
 						x.getDimensions(s);
 						octantHelper.setMatrixAt(i, m.compose(p, q, s));
 
-						const tempObj = new Object3D();
-						const tempColor = new Color();
-
 						// if the octant is within the distance, it might contains HD/SD meshes
 						const octantContainsHDMesh =
-							x.distanceToSquared(this.cullCamera.position) < this.maxHdDistanceSq;
+							x.distanceToSquared(this.cullCamera.position) < this.maxHDDistanceSq;
 						const octantContainsSDMesh =
-							x.distanceToSquared(this.cullCamera.position) < this.maxSdDistanceSq;
+							x.distanceToSquared(this.cullCamera.position) < this.maxSDDistanceSq;
 						// iterate through points in the octant
 						for (let pidx = 0; pidx < x.data.points.length; pidx++) {
 							if (ldpts >= maxLDMeshCount) break;
 
 							// check if the point is not filtered out
-							//@ts-ignore
 							let visible = focusGroup === undefined || focusGroup === x.data.data[pidx].group;
 							if (filterArray) {
-								//@ts-ignore
 								visible = visible && filterArray[x.data.data[pidx].index] === 1;
 							}
 
@@ -388,18 +411,16 @@ export class FrustumCuller {
 									x.data.points[pidx].z
 								);
 								tempObj.updateMatrix();
-								//@ts-ignore
 								let [r, g, b] = groupColors ? groupColors[x.data.data[pidx].group] : [255, 255, 255];
-								tempColor.setStyle(`rgb(${r},${g},${b})`);
+								tempColor.setRGB(r / 255, g / 255, b / 255);
 
-								//@ts-ignore
 								const dataId = String(x.data.data[pidx].index);
 								// if it is within the hd distance and not exceeding the max count
 								if (
 									octantContainsHDMesh &&
 									hdpts < maxHDMeshCount &&
 									x.data.points[pidx].distanceToSquared(this.cullCamera.position) <
-										this.maxHdDistanceSq
+										this.maxHDDistanceSq
 								) {
 									hdMesh.setMatrixAt(hdpts, tempObj.matrix);
 									hdMesh.setColorAt(hdpts, tempColor);
@@ -412,7 +433,7 @@ export class FrustumCuller {
 									octantContainsSDMesh &&
 									sdpts < maxSDMeshCount &&
 									x.data.points[pidx].distanceToSquared(this.cullCamera.position) <
-										this.maxSdDistanceSq
+										this.maxSDDistanceSq
 								) {
 									sdMesh.setMatrixAt(sdpts, tempObj.matrix);
 									sdMesh.setColorAt(sdpts, tempColor);
@@ -438,21 +459,19 @@ export class FrustumCuller {
 			sdMesh.instanceMatrix.needsUpdate = true;
 			ldMesh.instanceMatrix.needsUpdate = true;
 
-			// Recompute bounding volumes so the raycaster's early bounding-sphere
-			// test won't reject the mesh when instances have moved.
-			hdMesh.computeBoundingSphere();
-			sdMesh.computeBoundingSphere();
-			ldMesh.computeBoundingSphere();
-
 			sprites.mesh.count = hdpts;
 			sprites.mesh.instanceMatrix.needsUpdate = true;
-			sprites.mesh.computeBoundingSphere();
 
 			// sprites.needsUpdate = true;
 			sprites.update();
 			if (hdMesh.instanceColor) hdMesh.instanceColor.needsUpdate = true;
 			if (sdMesh.instanceColor) sdMesh.instanceColor.needsUpdate = true;
 			if (ldMesh.instanceColor) ldMesh.instanceColor.needsUpdate = true;
+			// Trim id arrays to the active instance count so getIdAt() can't return a stale
+			// id from a previous frame that had more visible instances.
+			this.hdIds.length = hdpts;
+			this.sdIds.length = sdpts;
+			this.ldIds.length = ldpts;
 		}
 	}
 	/**

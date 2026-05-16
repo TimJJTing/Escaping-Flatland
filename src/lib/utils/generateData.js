@@ -15,7 +15,7 @@ export const generateData = (palette, n = 1000000, s = 10000) => {
 	const diffRotationCBs = [];
 	const diffRotationCCs = [];
 	const planetCounts = [];
-	let s2 = s / 2; // particles spread in the cube
+	const s2 = s / 2; // particles spread in the cube
 	for (let i = 0; i < n; i++) {
 		let group = Math.floor(Math.random() * palette.length);
 		// positions

@@ -30,14 +30,14 @@ export const setControlsTarget = (controls, target, duration = 2000) => {
  * @param {boolean} faceOrigin
  */
 export const setCameraPosition = (camera, controls, target, duration = 2000, distance = 4, faceOrigin = false) => {
-	const _position = new THREE.Vector3();
+	const dir = new THREE.Vector3();
 	if (faceOrigin) {
-		_position.copy(target);
+		dir.copy(target);
 	} else {
-		_position.subVectors(camera.position, target);
+		dir.subVectors(camera.position, target);
 	}
-	if (_position.x === 0 && _position.y === 0 && _position.z === 0) _position.set(1, 1, 1);
-	const position = _position.normalize().multiplyScalar(distance).add(target);
+	if (dir.x === 0 && dir.y === 0 && dir.z === 0) dir.set(1, 1, 1);
+	const position = dir.normalize().multiplyScalar(distance).add(target);
 	const changeCamPosition = new Tween(camera.position, tweenGroup)
 		.to({ x: position.x, y: position.y, z: position.z }, duration)
 		.easing(Easing.Quadratic.InOut)

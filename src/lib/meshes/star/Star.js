@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as THREE from 'three';
 import { _Star } from './_Star';
 
@@ -103,7 +102,6 @@ export class Star {
 			}
 			this.needsUpdate = false;
 		}
-		// this.lod.levels[this.lod.getCurrentLevel()].object.update();
 		this.levels[0].update();
 	}
 

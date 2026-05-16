@@ -1,31 +1,18 @@
 <script module>
-	export const RAYCAST_LAYER = 1;
 	export const BLOOM_LAYER = 2;
 	export const COLLAPSE_SCALE = 0.0001;
 </script>
 
 <script>
-
 	import * as THREE from 'three';
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 	import Stats from 'three/addons/libs/stats.module.js';
-	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { SelectiveBloom } from '$lib/utils';
 	import { browser } from '$app/environment';
-	import {
-		setScene,
-		setCamera,
-		setControls,
-		setRenderer,
-		setFuncPipelines,
-		setSceneReady,
-		setMouse,
-		setRaycaster,
-		setPostprocessor,
-		getSceneOptions
-	} from './context';
+	import { setSceneContext, getSceneOptions } from './context.svelte.js';
 
-	
+
 	/**
 	 * @typedef {Object} Props
 	 * @property {boolean} [stats]
@@ -54,78 +41,50 @@
 	 */
 	let mouseTarget = null;
 
-	const dispatch = createEventDispatcher();
-	let scene = setScene();
-	let sceneReady = setSceneReady();
-	let renderer = setRenderer();
-	let camera = setCamera();
-	let mouse = setMouse();
-	let raycaster = setRaycaster();
-	let postprocessor = setPostprocessor();
-	let controls = setControls();
-	let funcPipelines = setFuncPipelines();
-	let sceneOptions = getSceneOptions();
+	const ctx = setSceneContext();
+	const sceneOpts = getSceneOptions();
 
 	// event listeners
 	const onWindowResize = () => {
 		const width = window.innerWidth;
 		const height = window.innerHeight;
 
-		if ($camera) {
-			$camera.aspect = width / height;
-			$camera.updateProjectionMatrix();
+		if (ctx.camera) {
+			ctx.camera.aspect = width / height;
+			ctx.camera.updateProjectionMatrix();
 		}
 
-		// frustumCuller.getCameraHelper().update();
-
-		if ($renderer) {
-			$renderer.setSize(width, height);
+		if (ctx.renderer) {
+			ctx.renderer.setSize(width, height);
 		}
 
-		if ($postprocessor) {
-			$postprocessor.setSize(width, height);
+		if (ctx.postprocessor) {
+			ctx.postprocessor.setSize(width, height);
 		}
 	};
 
 	const onOrbitCtrlStart = () => {
 		mouseInteraction = false;
-		dispatch('orbitCtrlStart');
 	};
 	const onOrbitCtrlEnd = () => {
 		mouseInteraction = true;
-		dispatch('orbitCtrlEnd');
 	};
 	const onOrbitCtrlChange = (event) => {
-		// execute render functions
-		$funcPipelines.cameraPipeline?.forEach((cameraFunc) => {
+		ctx.cameraPipeline?.forEach((cameraFunc) => {
 			cameraFunc();
 		});
-		// $distanceToTarget = Math.round(controls.getDistance());
-		// $distanceToCenter = Math.round(camera.position.distanceTo(origin));
-		// 0.8 <= pass_strength <= 0.5 prevent scene from being too bright when the camera approaches the center of the universe
-		// postprocessing.setPassParams({
-		// 	strength: Math.min(0.8, Math.max($distanceToCenter / initialDistance, 0.5))
-		// });
-		// $camPos = {
-		// 	x: camera.position.x,
-		// 	y: camera.position.y,
-		// 	z: camera.position.z
-		// };
-		dispatch('orbitCtrlChange');
+		if (ctx.camera) {
+			ctx.camPos = { x: ctx.camera.position.x, y: ctx.camera.position.y, z: ctx.camera.position.z };
+		}
 	};
 	const onMouseClick = async (event) => {
 		event.preventDefault();
-		// use the target get from onMouseMove listener
-		// if (mouseInteraction && mouseTarget !== null) {
-		//     await urlSearchParams.set('star', mouseTarget, $page);
-		// }
-		dispatch('click');
 	};
 	const onMouseMove = (event) => {
 		event.preventDefault();
-		if ($mouse && mouseInteraction) {
-			$mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-			$mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+		if (ctx.mouse && mouseInteraction) {
+			ctx.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+			ctx.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 		}
 	};
 
@@ -148,17 +107,14 @@
 		if (browser) {
 			const init = () => {
 				// add scene
-				$scene = new THREE.Scene();
-				$scene.fog = new THREE.FogExp2(0x121215, 0.00004);
-				$scene.background = new THREE.Color(0x121215);
+				ctx.scene = new THREE.Scene();
+				ctx.scene.fog = new THREE.FogExp2(0x121215, 0.00004);
+				ctx.scene.background = new THREE.Color(0x121215);
 
-				$raycaster = new THREE.Raycaster();
-				$raycaster.far = 1200;
-				$raycaster.layers.set(RAYCAST_LAYER);
-				$mouse = new THREE.Vector2(1, 1);
+				ctx.mouse = new THREE.Vector2(1, 1);
 
 				// add camera
-				$camera = new THREE.PerspectiveCamera(
+				ctx.camera = new THREE.PerspectiveCamera(
 					55,
 					window.innerWidth / window.innerHeight,
 					0.1,
@@ -166,70 +122,67 @@
 				);
 
 				// @ts-ignore
-				$camera.position.set(100000, 100000, 100000);
-				$camera.lookAt(0, 0, 0);
+				ctx.camera.position.set(100000, 100000, 100000);
+				ctx.camera.lookAt(0, 0, 0);
 
 				// add renderers
-				$renderer = new THREE.WebGLRenderer();
-				$renderer.setSize(window.innerWidth, window.innerHeight);
+				ctx.renderer = new THREE.WebGLRenderer();
+				ctx.renderer.setSize(window.innerWidth, window.innerHeight);
 				// @ts-ignore
-				$renderer.info.autoReset = false;
-				$renderer.toneMapping = THREE.ACESFilmicToneMapping;
-				$renderer.toneMappingExposure = 0.2;
-				container.appendChild($renderer.domElement);
+				ctx.renderer.info.autoReset = false;
+				ctx.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+				ctx.renderer.toneMappingExposure = 0.2;
+				container.appendChild(ctx.renderer.domElement);
 
-				$postprocessor = new SelectiveBloom($renderer, $scene, $camera, BLOOM_LAYER);
+				ctx.postprocessor = new SelectiveBloom(ctx.renderer, ctx.scene, ctx.camera, BLOOM_LAYER);
 
-				$controls = new OrbitControls($camera, $renderer.domElement);
-				$controls.autoRotate = false;
-				$controls.autoRotateSpeed = 0.5;
-				$controls.minDistance = 3;
-				$controls.maxDistance = 24000;
-				$controls.update();
-				$controls.saveState();
+				ctx.controls = new OrbitControls(ctx.camera, ctx.renderer.domElement);
+				ctx.controls.autoRotate = false;
+				ctx.controls.autoRotateSpeed = 0.5;
+				ctx.controls.minDistance = 3;
+				ctx.controls.maxDistance = 24000;
+				ctx.controls.update();
+				ctx.controls.saveState();
 
 				window.addEventListener('resize', onWindowResize);
-				$controls.addEventListener('change', onOrbitCtrlChange);
-				$controls.addEventListener('start', onOrbitCtrlStart);
-				$controls.addEventListener('end', onOrbitCtrlEnd);
+				ctx.controls.addEventListener('change', onOrbitCtrlChange);
+				ctx.controls.addEventListener('start', onOrbitCtrlStart);
+				ctx.controls.addEventListener('end', onOrbitCtrlEnd);
 				container.addEventListener('click', onMouseClick);
 				container.addEventListener('mousemove', onMouseMove);
 
-				$sceneReady = true;
-				dispatch('ready');
+				ctx.sceneReady = true;
 			};
 
 			const render = () => {
-				if ($postprocessor && $sceneOptions.blooming) {
-					$postprocessor.render();
+				if (ctx.postprocessor && sceneOpts.blooming) {
+					ctx.postprocessor.render();
 				} else {
-					$renderer?.render($scene, $camera);
+					ctx.renderer?.render(ctx.scene, ctx.camera);
 				}
 
 				// execute render functions
-				$funcPipelines.renderPipeline?.forEach((renderFunc) => {
+				ctx.renderPipeline?.forEach((renderFunc) => {
 					renderFunc();
 				});
 
-				// update render info for debug mode
-				// if ($option.debugModeEnabled) $renderInfo = { ...renderer.info.render };
+				if (stats && ctx.renderer) ctx.renderInfo = { ...ctx.renderer.info.render };
 
-				if ($renderer) {
-					// $renderer.toneMappingExposure = $toneMappingExposure;
+				if (ctx.renderer) {
 					// @ts-ignore
-					$renderer.info.reset();
+					ctx.renderer.info.reset();
 				}
 			};
 
 			const animate = () => {
 				requestAnimationFrame(animate);
 
-				if ($controls) {
-					$controls.update();
+				if (ctx.controls) {
+					ctx.controls.update();
 				}
 
 				// execute update functions
-				$funcPipelines.updatePipeline?.forEach((updateFunc) => {
+				ctx.updatePipeline?.forEach((updateFunc) => {
 					updateFunc();
 				});
 
@@ -243,7 +196,7 @@
 			init();
 			animate();
 		} else {
-			throw Error('Three.js only runs in a browser environment.');
+			throw new Error('Three.js only runs in a browser environment.');
 		}
 	});
 	onDestroy(() => {
@@ -253,17 +206,23 @@
 				container.removeEventListener('click', onMouseClick);
 				container.removeEventListener('mousemove', onMouseMove);
 			}
-			if ($controls) {
-				$controls.removeEventListener('change', onOrbitCtrlChange);
-				$controls.removeEventListener('start', onOrbitCtrlStart);
-				$controls.removeEventListener('end', onOrbitCtrlEnd);
+			if (ctx.controls) {
+				ctx.controls.removeEventListener('change', onOrbitCtrlChange);
+				ctx.controls.removeEventListener('start', onOrbitCtrlStart);
+				ctx.controls.removeEventListener('end', onOrbitCtrlEnd);
+				ctx.controls.dispose();
+			}
+			if (ctx.postprocessor) ctx.postprocessor.dispose();
+			if (ctx.renderer) {
+				ctx.renderer.dispose();
+				ctx.renderer.domElement.remove();
 			}
 		}
 	});
 </script>
 
 <div id="container" bind:this={container}>
-	{#if $sceneReady}
+	{#if ctx.sceneReady}
 		{@render children?.()}
 	{/if}
 </div>

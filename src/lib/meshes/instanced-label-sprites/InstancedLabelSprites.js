@@ -27,8 +27,8 @@ export class InstancedLabelSprites {
 		this.needsUpdate = false;
 		this._textureDimensions = this.textureResolution.clone().divide(this.labelResolution);
 		if (this._textureDimensions.x * this._textureDimensions.y < this.count) {
-			console.log(
-				'[Warn] Unable to construct a texture that can include all labels. Either decrease the count, decrease the label resolution, or increase the texture resolution.'
+			console.warn(
+				'Unable to construct a texture that can include all labels. Either decrease the count, decrease the label resolution, or increase the texture resolution.'
 			);
 		}
 
@@ -144,6 +144,8 @@ export class InstancedLabelSprites {
 	}
 
 	update() {
+		const oldTexture = this.material.uniforms.uMarkerTexture.value;
+		if (oldTexture) oldTexture.dispose();
 		this.material.uniforms.uMarkerTexture.value = this._getMarkerTexture(
 			this._textureDimensions.x,
 			this._textureDimensions.y,
@@ -156,6 +158,8 @@ export class InstancedLabelSprites {
 		}
 	}
 	dispose() {
+		const tex = this.material.uniforms.uMarkerTexture.value;
+		if (tex) tex.dispose();
 		this.mesh.dispose();
 		this.geometry.dispose();
 		this.material.dispose();

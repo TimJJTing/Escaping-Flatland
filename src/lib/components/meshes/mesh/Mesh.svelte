@@ -1,47 +1,37 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import {
-		getScene,
-		getFuncPipelines,
-		getPostprocessor
-	} from '$lib/components/providers/scene';
-	import { usePostProcessor, useRaycast } from '../utils';
-	
+	import { getSceneContext } from '$lib/components/providers/scene';
+	import { usePostProcessor } from '../utils';
+
 	/**
 	 * @typedef {Object} Props
 	 * @property {any} mesh - mesh to add into scene
-	 * @property {boolean} [raycast] - enable raycasting?
 	 * @property {boolean} [postprocess] - add to postprocess?
 	 */
 
 	/** @type {Props} */
-	let { mesh, raycast = false, postprocess = false } = $props();
+	let { mesh, postprocess = false } = $props();
 
-	let id = {};
-	let scene = getScene();
-	let funcPipelines = getFuncPipelines();
-	let postprocessor = getPostprocessor();
+	const id = {};
+	const ctx = getSceneContext();
 
 	$effect(() => {
-		useRaycast(raycast, mesh?.getMesh());
-	});
-	$effect(() => {
-		usePostProcessor(postprocess, $postprocessor, mesh?.getMesh());
+		usePostProcessor(postprocess, ctx.postprocessor, mesh?.getMesh());
 	});
 
 	onMount(() => {
 		// add mesh into scene
-		if ($scene) {
-			$scene.add(mesh.getMesh());
+		if (ctx.scene) {
+			ctx.scene.add(mesh.getMesh());
 		}
-		$funcPipelines.registerUpdateFunc(id, () => {
+		ctx.registerUpdateFunc(id, () => {
 			mesh.update();
 		});
 	});
 
 	onDestroy(() => {
-		$funcPipelines.deregisterUpdateFunc(id);
-		$scene?.remove(mesh.getMesh());
+		ctx.deregisterUpdateFunc(id);
+		ctx.scene?.remove(mesh.getMesh());
 		mesh.dispose();
 	});
 </script>

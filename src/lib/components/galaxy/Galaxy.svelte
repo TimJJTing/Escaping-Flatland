@@ -1,6 +1,6 @@
 <script>
 	import * as THREE from 'three';
-	import { onMount, onDestroy, untrack } from 'svelte';
+	import { untrack, onDestroy } from 'svelte';
 	import { Settings, CircleQuestionMark } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import {
@@ -8,21 +8,21 @@
 		setDataOptions,
 		getDataOptions,
 		setParticleOptions,
+		getParticleOptions,
 		setSceneOptions,
 		getSceneOptions,
 		setSelectedPoint
 	} from '$lib/components/providers/scene';
-	import { Particles } from '$lib/meshes/particles';
 	import { Star } from '$lib/meshes/star';
 	import { Planet } from '$lib/meshes/planet';
 	import { SolarSystem } from '$lib/meshes/solar-system';
-	import { Mesh, ParticleOctree } from '$lib/components/meshes';
+	import { Mesh, ParticleOctree, Particles } from '$lib/components/meshes';
 	import { HemisphereLight } from '$lib/components/lights';
 	import { InteractionManager } from '$lib/components/interaction';
 	import { OptionModal } from '$lib/components/modals/option';
 	import { HelpModal } from '$lib/components/modals/help';
-	import { getParticleOptions } from '$lib/components/providers/scene';
 	import { LoadingOverlay } from '$lib/components/loading';
+	import { DebugPanel } from '$lib/components/debug';
 	import { StarDashboard } from '$lib/components/dashboard';
 	import { SearchBar } from '$lib/components/search-bar';
 	import { palette, DATA_SOURCES } from '$lib/utils';
@@ -31,18 +31,16 @@
 	setDataOptions();
 	setParticleOptions();
 	setSceneOptions();
-	const selectedPoint = setSelectedPoint();
-	const dataOptions = getDataOptions();
-	const sceneOptions = getSceneOptions();
-	const particleOptions = getParticleOptions();
+	const sel = setSelectedPoint();
+	const dataOpts = getDataOptions();
+	const sceneOpts = getSceneOptions();
+	const particleOpts = getParticleOptions();
 
 	// Reactive data — re-generates only when dataSourceId changes
 	let starData = $derived.by(() => {
-		const srcId = $dataOptions.dataSourceId;
+		const srcId = dataOpts.dataSourceId;
 		return (DATA_SOURCES.find((s) => s.id === srcId) ?? DATA_SOURCES[0]).generate(palette);
 	});
-
-	let particles = $derived(new Particles(starData.positions, starData.colors, starData.groups));
 
 	// Background center star (always present)
 	const star = new Star(new THREE.Vector3(1, 1, 1), 1);
@@ -57,21 +55,30 @@
 	const solarSystem = new SolarSystem(solarStar, 'selected-star');
 	solarSystem.visible = false;
 
+	onDestroy(() => {
+		// planetPool items removed via removePlanet() are absent from solarSystem.planets
+		// and won't be disposed by solarSystem.dispose() (called by <Mesh onDestroy>)
+		const managed = new Set(solarSystem.planets);
+		for (const p of planetPool) {
+			if (!managed.has(p)) p.dispose();
+		}
+	});
+
 	// Reset selection when data source changes (avoids stale starIndex)
-	let prevDataSourceId = $dataOptions.dataSourceId;
+	let prevDataSourceId = dataOpts.dataSourceId;
 	$effect(() => {
-		const id = $dataOptions.dataSourceId;
+		const id = dataOpts.dataSourceId;
 		if (id !== prevDataSourceId) {
 			const label = DATA_SOURCES.find((s) => s.id === id)?.label ?? id;
 			toast(`Data Source: ${label}`);
 			prevDataSourceId = id;
-			selectedPoint.set(null);
+			sel.selectedPoint = null;
 		}
 	});
 
 	// Configure and show solar system on star click
 	$effect(() => {
-		const sp = $selectedPoint;
+		const sp = sel.selectedPoint;
 		if (!sp) {
 			solarSystem.visible = false;
 			return;
@@ -107,11 +114,19 @@
 	let optionModalVisible = $state(false);
 	let helpModalVisible = $state(false);
 
-	let prevScene = { ...$sceneOptions };
-	let prevParticle = { ...$particleOptions };
+	let prevScene = {
+		autoRotateEnabled: sceneOpts.autoRotateEnabled,
+		viewHelperEnabled: sceneOpts.viewHelperEnabled,
+		blooming: sceneOpts.blooming,
+		debugModeEnabled: sceneOpts.debugModeEnabled
+	};
+	let prevParticle = {
+		labelsEnabled: particleOpts.labelsEnabled,
+		octantHelperEnabled: particleOpts.octantHelperEnabled
+	};
 
 	$effect(() => {
-		const opts = $sceneOptions;
+		const opts = sceneOpts;
 		if (opts.autoRotateEnabled !== prevScene.autoRotateEnabled)
 			toast(`Auto Rotate: ${opts.autoRotateEnabled ? 'On' : 'Off'}`);
 		if (opts.viewHelperEnabled !== prevScene.viewHelperEnabled)
@@ -119,30 +134,32 @@
 		if (opts.blooming !== prevScene.blooming) toast(`Blooming: ${opts.blooming ? 'On' : 'Off'}`);
 		if (opts.debugModeEnabled !== prevScene.debugModeEnabled)
 			toast(`Debug Mode: ${opts.debugModeEnabled ? 'On' : 'Off'}`);
-		prevScene = { ...opts };
+		prevScene = {
+			autoRotateEnabled: opts.autoRotateEnabled,
+			viewHelperEnabled: opts.viewHelperEnabled,
+			blooming: opts.blooming,
+			debugModeEnabled: opts.debugModeEnabled
+		};
 	});
 
 	$effect(() => {
-		const opts = $particleOptions;
+		const opts = particleOpts;
 		if (opts.labelsEnabled !== prevParticle.labelsEnabled)
 			toast(`Labels: ${opts.labelsEnabled ? 'On' : 'Off'}`);
 		if (opts.octantHelperEnabled !== prevParticle.octantHelperEnabled)
 			toast(`Octant Helper: ${opts.octantHelperEnabled ? 'On' : 'Off'}`);
-		prevParticle = { ...opts };
+		prevParticle = {
+			labelsEnabled: opts.labelsEnabled,
+			octantHelperEnabled: opts.octantHelperEnabled
+		};
 	});
 
 	const onKeyDown = (/** @type {KeyboardEvent} */ e) => {
 		if (e.key === 'o' || e.key === 'O') optionModalVisible = !optionModalVisible;
 	};
-
-	onMount(() => {
-		window.addEventListener('keydown', onKeyDown);
-	});
-	onDestroy(() => {
-		window.removeEventListener('keydown', onKeyDown);
-	});
 </script>
 
+<svelte:window onkeydown={onKeyDown} />
 <OptionModal bind:visible={optionModalVisible} />
 <HelpModal bind:visible={helpModalVisible} />
 <SearchBar {starData} />
@@ -166,12 +183,16 @@
 
 <LoadingOverlay loading={!frustumCullerRef} />
 
-<Scene stats={$sceneOptions.debugModeEnabled}>
+<Scene stats={sceneOpts.debugModeEnabled}>
 	<HemisphereLight skyColor={0xffffff} groundColor={0x888888} intensity={3} />
 	<Mesh mesh={star} postprocess />
 	<Mesh mesh={solarSystem} postprocess />
-	{#key $dataOptions.dataSourceId}
-		<Mesh mesh={particles} />
+	{#key dataOpts.dataSourceId}
+		<Particles
+			positions={starData.positions}
+			colors={starData.colors}
+			groups={starData.groups}
+		/>
 		<ParticleOctree
 			groupColors={palette}
 			positions={starData.positions}
@@ -182,4 +203,7 @@
 		/>
 	{/key}
 	<InteractionManager {frustumCullerRef} />
+	{#if sceneOpts.debugModeEnabled}
+		<DebugPanel />
+	{/if}
 </Scene>

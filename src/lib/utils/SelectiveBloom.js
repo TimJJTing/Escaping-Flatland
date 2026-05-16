@@ -5,10 +5,9 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-// import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
-const defaultParams = {
+const DEFAULT_PARAMS = {
 	threshold: 0.1,
 	strength: 0.8,
 	radius: 0.5
@@ -47,13 +46,14 @@ export class SelectiveBloom {
 	 * @param {*} renderer renderer
 	 * @param {*} scene scene
 	 * @param {*} camera camera
-	 * @param {Integer} bloomScene the blooming layer
+	 * @param {number} bloomScene the blooming layer
 	 * @returns this
 	 */
 	constructor(renderer, scene, camera, bloomScene = 1) {
 		this._darkMaterial = new THREE.MeshBasicMaterial({
 			color: 0x000000
 		});
+		this._backgroundColor = new THREE.Color(0x000000);
 		this._renderer = renderer;
 		this._scene = scene;
 		this._camera = camera;
@@ -66,10 +66,7 @@ export class SelectiveBloom {
 		this._bloomPass = this._createBloomPass();
 		this.bloomComposer = this._createBloomComposer();
 		this._mixPass = this._createMixPass();
-		// this._outlinePass = this._createOutlinePass();
 		this.finalComposer = this._createFinalComposer();
-
-		// this._selectObjects = [];
 
 		return this;
 	}
@@ -77,9 +74,9 @@ export class SelectiveBloom {
 	_createBloomPass() {
 		const bloomPass = new UnrealBloomPass(
 			new THREE.Vector2(window.innerWidth, window.innerHeight),
-			defaultParams.strength,
-			defaultParams.radius,
-			defaultParams.threshold
+			DEFAULT_PARAMS.strength,
+			DEFAULT_PARAMS.radius,
+			DEFAULT_PARAMS.threshold
 		);
 		return bloomPass;
 	}
@@ -110,53 +107,17 @@ export class SelectiveBloom {
 		return mixPass;
 	}
 
-	// _createOutlinePass() {
-	// 	const outlinePass = new OutlinePass(
-	// 		new THREE.Vector2(window.innerWidth, window.innerHeight),
-	// 		this._scene,
-	// 		this._camera
-	// 	);
-	// 	outlinePass.edgeStrength = 3.0;
-	// 	outlinePass.edgeGlow = 0.0;
-	// 	outlinePass.edgeThickness = 1.0;
-	// 	outlinePass.visibleEdgeColor.set('#ffffff');
-
-	// 	return outlinePass;
-	// }
-
 	_createFinalComposer() {
 		let finalComposer = new EffectComposer(this._renderer);
 		finalComposer.addPass(this._renderScene);
 
-		// mix pass
 		finalComposer.addPass(this._mixPass);
-
-		// outline pass
-		// finalComposer.addPass(this._outlinePass);
 
 		// output pass
 		const outputPass = new OutputPass();
 		finalComposer.addPass(outputPass);
 		return finalComposer;
 	}
-
-	// /**
-	//  * Add new object to this post effect
-	//  * @param {THREE.Object3D} obj
-	//  */
-	// addOutline(obj) {
-	// 	this._selectedObjects = [];
-	// 	this._selectedObjects.push(obj);
-	// 	this._outlinePass.selectedObjects = this._selectedObjects;
-	// }
-
-	// /**
-	//  * Remove objects from this post effect
-	//  */
-	// removeOutline() {
-	// 	this._selectedObjects = [];
-	// 	this._outlinePass.selectedObjects = this._selectedObjects;
-	// }
 
 	/**
 	 * Add new object to this post effect
@@ -210,7 +171,7 @@ export class SelectiveBloom {
 	render() {
 		const originalBackground = this._scene.background;
 		const nonBloomedMaterials = {};
-		this._scene.background = new THREE.Color(0x000000);
+		this._scene.background = this._backgroundColor;
 
 		// Darken non-bloomed objects:
 		// traverse objects and replace non-bloomed's materials or hide them completely.
@@ -242,11 +203,10 @@ export class SelectiveBloom {
 			}
 		});
 
-		this._scene.background.set(0x000000);
 		// render scene for the first time
 		this.bloomComposer.render();
 
-		this._scene.background.set(originalBackground);
+		this._scene.background = originalBackground;
 
 		// Restore original materials:
 		// traverse objects and restore non-bloomed's materials or unhide them.
@@ -267,5 +227,13 @@ export class SelectiveBloom {
 	setSize(width, height) {
 		this.bloomComposer.setSize(width, height);
 		this.finalComposer.setSize(width, height);
+	}
+
+	dispose() {
+		this._darkMaterial.dispose();
+		this._bloomPass.dispose();
+		this._mixPass.material.dispose();
+		this.bloomComposer.dispose();
+		this.finalComposer.dispose();
 	}
 }

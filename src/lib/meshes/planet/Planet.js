@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as THREE from 'three';
 import { _Planet } from './_Planet';
 
@@ -51,26 +50,26 @@ export class Planet {
 	}
 
 	/**
-	 * @return p {THREE.Vector3}
+	 * @returns {THREE.Vector3}
 	 */
 	get position() {
 		return this.lod.position;
 	}
 	/**
-	 * @param p {THREE.Vector3}
+	 * @param {THREE.Vector3} p
 	 */
 	set position(p) {
 		this.lod.position.copy(p);
 	}
 
 	/**
-	 * @param v {boolean}
+	 * @param {boolean} v
 	 */
 	set visible(v) {
 		this.lod.visible = v;
 	}
 	/**
-	 * @param p {THREE.Vector3}
+	 * @param {THREE.Vector3} p
 	 */
 	lookAt(p) {
 		this.lod.lookAt(p);
@@ -106,7 +105,6 @@ export class Planet {
 			}
 			this.needsUpdate = false;
 		}
-		// this.lod.levels[this.lod.getCurrentLevel()].object.update();
 		this.levels[0].update();
 	}
 

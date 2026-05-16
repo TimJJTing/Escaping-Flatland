@@ -1,8 +1,13 @@
-// @ts-nocheck
 import * as THREE from 'three';
+/** @import { Star } from '../star/Star.js' */
+/** @import { Planet } from '../planet/Planet.js' */
+
 export class SolarSystem {
 	/**
 	 * Solar System
+	 * @param {Star} sun
+	 * @param {string} name
+	 * @param {Planet[]} [planets]
 	 * @returns this
 	 */
 	constructor(sun, name, planets = []) {
@@ -45,12 +50,18 @@ export class SolarSystem {
 		return this.group;
 	}
 
+	/**
+	 * @param {Planet} planet
+	 */
 	addPlanet(planet) {
 		planet.position.set(this.sun.position.x + planet.au, this.sun.position.y, this.sun.position.z);
 		this.planets.push(planet);
 		this.group.add(planet.getMesh());
 	}
 
+	/**
+	 * @param {Planet} planet
+	 */
 	removePlanet(planet) {
 		const index = this.planets.indexOf(planet);
 		if (index !== -1) {
@@ -72,25 +83,6 @@ export class SolarSystem {
 		return this.group.visible;
 	}
 
-	/**
-	 * @param v {boolean}
-	 */
-	// set visible(v) {
-	// 	this.star.visible = v;
-	// }
-	/**
-	 * @param p {THREE.Vector3}
-	 */
-	// lookAt(p) {
-	// 	this.star.lookAt(p);
-	// }
-	/**
-	 * Return the LOD Object3D
-	 */
-	// getMesh() {
-	// 	return this.lod;
-	// }
-
 	update() {
 		this._time = this.clock.getElapsedTime();
 		this.sun.update();
@@ -108,10 +100,10 @@ export class SolarSystem {
 	 */
 	dispose() {
 		this.clock.stop();
-		this.group.clear();
 		this.sun.dispose();
 		for (let i = 0; i < this.planets.length; i++) {
 			this.planets[i].dispose();
 		}
+		this.group.clear();
 	}
 }
