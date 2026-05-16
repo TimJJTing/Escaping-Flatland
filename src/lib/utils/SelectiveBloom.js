@@ -68,6 +68,16 @@ export class SelectiveBloom {
 		this._mixPass = this._createMixPass();
 		this.finalComposer = this._createFinalComposer();
 
+		// Pre-allocated per-frame state — avoids GC churn each render call
+		this._nonBloomedObjs = [];
+		this._nonBloomedMats = [];
+		this._hiddenObjects = [];
+
+		// Cached flat lists of non-bloom scene objects
+		this._nonBloomMeshes = [];
+		this._nonBloomPoints = [];
+		this._cacheValid = false;
+
 		return this;
 	}
 
