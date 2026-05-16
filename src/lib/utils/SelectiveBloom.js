@@ -68,6 +68,16 @@ export class SelectiveBloom {
 		this._mixPass = this._createMixPass();
 		this.finalComposer = this._createFinalComposer();
 
+		// Pre-allocated per-frame state — avoids GC churn each render call
+		this._nonBloomedObjs = [];
+		this._nonBloomedMats = [];
+		this._hiddenObjects = [];
+
+		// Cached flat lists of non-bloom scene objects
+		this._nonBloomMeshes = [];
+		this._nonBloomPoints = [];
+		this._cacheValid = false;
+
 		return this;
 	}
 
@@ -119,6 +129,30 @@ export class SelectiveBloom {
 		return finalComposer;
 	}
 
+	_buildCache() {
+		this._nonBloomMeshes.length = 0;
+		this._nonBloomPoints.length = 0;
+		this._scene.traverse((obj) => {
+			if (!(obj.isMesh || obj.isPoints) || !obj.material) return;
+			if (this.bloomLayer.test(obj.layers)) return;
+			if (obj.isInstancedLabelSprites || obj.isPoints) {
+				this._nonBloomPoints.push(obj);
+			} else {
+				this._nonBloomMeshes.push(obj);
+			}
+		});
+		this._cacheValid = true;
+	}
+
+	/**
+	 * Call after adding or removing objects directly from the scene (outside of
+	 * SelectiveBloom.add / SelectiveBloom.remove) to force a cache rebuild on
+	 * the next render.
+	 */
+	invalidateCache() {
+		this._cacheValid = false;
+	}
+
 	/**
 	 * Add new object to this post effect
 	 * @param {THREE.Object3D} obj
@@ -127,6 +161,12 @@ export class SelectiveBloom {
 		obj.traverse((o) => {
 			if ((o.isMesh || o.isPoints) && o.material) {
 				o.layers.enable(this.bloomScene);
+				if (this._cacheValid) {
+					const mi = this._nonBloomMeshes.indexOf(o);
+					if (mi !== -1) this._nonBloomMeshes.splice(mi, 1);
+					const pi = this._nonBloomPoints.indexOf(o);
+					if (pi !== -1) this._nonBloomPoints.splice(pi, 1);
+				}
 			}
 		});
 	}
@@ -139,6 +179,13 @@ export class SelectiveBloom {
 		obj.traverse((o) => {
 			if ((o.isMesh || o.isPoints) && o.material) {
 				o.layers.disable(this.bloomScene);
+				if (this._cacheValid) {
+					if (o.isInstancedLabelSprites || o.isPoints) {
+						if (!this._nonBloomPoints.includes(o)) this._nonBloomPoints.push(o);
+					} else if (o.isMesh) {
+						if (!this._nonBloomMeshes.includes(o)) this._nonBloomMeshes.push(o);
+					}
+				}
 			}
 		});
 	}
@@ -168,59 +215,65 @@ export class SelectiveBloom {
 	/**
 	 * Use this render function to activate the effect
 	 */
+	// Darken non-bloomed objects:
+	// traverse objects and replace non-bloomed's materials or hide them completely.
+	// note: use traverse (not traverseVisible) so all LOD level children get covered.
+	// THREE.LOD.update(camera) runs inside bloomComposer.render() and can swap the
+	// active level — if we only darken the currently-visible level, a newly-active
+	// level still has its bright material and leaks into the bloom extract, causing
+	// far objects to blink on LOD transitions.
+	// note: non-bloom THREE.Points get hidden, not darkened. Assigning the
+	// MeshBasicMaterial _darkMaterial to a Points object makes three.js draw it as
+	// 1-pixel dots that still write depth. With many points (e.g. a 500k-particle
+	// background), individual dots screen-align with bloom-layer objects as the
+	// camera moves and depth-occlude them in bloomComposer only — but not in
+	// finalComposer, where the original PointsMaterial is transparent (depthWrite
+	// off). The bloom contribution then toggles per frame, blinking far stars.
 	render() {
+		if (!this._cacheValid) this._buildCache();
+
 		const originalBackground = this._scene.background;
-		const nonBloomedMaterials = {};
 		this._scene.background = this._backgroundColor;
 
-		// Darken non-bloomed objects:
-		// traverse objects and replace non-bloomed's materials or hide them completely.
-		// note: use traverse (not traverseVisible) so all LOD level children get covered.
-		// THREE.LOD.update(camera) runs inside bloomComposer.render() and can swap the
-		// active level — if we only darken the currently-visible level, a newly-active
-		// level still has its bright material and leaks into the bloom extract, causing
-		// far objects to blink on LOD transitions.
-		// note: non-bloom THREE.Points get hidden, not darkened. Assigning the
-		// MeshBasicMaterial _darkMaterial to a Points object makes three.js draw it as
-		// 1-pixel dots that still write depth. With many points (e.g. a 500k-particle
-		// background), individual dots screen-align with bloom-layer objects as the
-		// camera moves and depth-occlude them in bloomComposer only — but not in
-		// finalComposer, where the original PointsMaterial is transparent (depthWrite
-		// off). The bloom contribution then toggles per frame, blinking far stars.
-		const hiddenObjects = (this._hiddenObjects = []);
-		this._scene.traverse((obj) => {
-			if ((obj.isMesh || obj.isPoints) && obj.material && !this.bloomLayer.test(obj.layers)) {
-				if (obj.isInstancedLabelSprites || obj.isPoints) {
-					if (obj.visible) {
-						hiddenObjects.push(obj);
-						obj.visible = false;
-					}
-				} else {
-					// Store original material
-					nonBloomedMaterials[obj.uuid] = obj.material;
-					obj.material = this._darkMaterial;
-				}
-			}
-		});
+		// Clear per-frame arrays — reuse allocations, no new objects
+		this._nonBloomedObjs.length = 0;
+		this._nonBloomedMats.length = 0;
+		this._hiddenObjects.length = 0;
 
-		// render scene for the first time
+		// Darken non-bloom meshes. Guard obj.material: stale cache entries may
+		// reference objects whose material was set to null externally.
+		for (let i = 0; i < this._nonBloomMeshes.length; i++) {
+			const obj = this._nonBloomMeshes[i];
+			if (!obj.material) continue;
+			this._nonBloomedObjs.push(obj);
+			this._nonBloomedMats.push(obj.material);
+			obj.material = this._darkMaterial;
+		}
+
+		// Hide non-bloom points/sprites. Only track visible ones — restoring an
+		// already-hidden object would incorrectly make it visible.
+		for (let i = 0; i < this._nonBloomPoints.length; i++) {
+			const obj = this._nonBloomPoints[i];
+			if (obj.visible) {
+				this._hiddenObjects.push(obj);
+				obj.visible = false;
+			}
+		}
+
 		this.bloomComposer.render();
 
 		this._scene.background = originalBackground;
 
-		// Restore original materials:
-		// traverse objects and restore non-bloomed's materials or unhide them.
-		// note we don't use traverseVisible here, otherwise it's possible that LOD objects' material won't get restored
-		for (let i = 0; i < hiddenObjects.length; i++) {
-			hiddenObjects[i].visible = true;
+		// Restore visibility — direct array iteration, no traverse
+		for (let i = 0; i < this._hiddenObjects.length; i++) {
+			this._hiddenObjects[i].visible = true;
 		}
-		this._scene.traverse((obj) => {
-			if (obj.isMesh && nonBloomedMaterials[obj.uuid]) {
-				obj.material = nonBloomedMaterials[obj.uuid];
-			}
-		});
 
-		// final render
+		// Restore materials — parallel arrays avoid second scene.traverse()
+		for (let i = 0; i < this._nonBloomedObjs.length; i++) {
+			this._nonBloomedObjs[i].material = this._nonBloomedMats[i];
+		}
+
 		this.finalComposer.render();
 	}
 
@@ -235,5 +288,10 @@ export class SelectiveBloom {
 		this._mixPass.material.dispose();
 		this.bloomComposer.dispose();
 		this.finalComposer.dispose();
+		this._nonBloomedObjs.length = 0;
+		this._nonBloomedMats.length = 0;
+		this._hiddenObjects.length = 0;
+		this._nonBloomMeshes.length = 0;
+		this._nonBloomPoints.length = 0;
 	}
 }
