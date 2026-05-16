@@ -283,4 +283,34 @@ describe('SelectiveBloom.render() material handling', () => {
 		// @ts-ignore
 		expect(sb._nonBloomMeshes).toContain(mesh);
 	});
+
+	it('hides isInstancedLabelSprites objects (not darkens them)', () => {
+		const scene = makeScene();
+		// Simulate InstancedLabelSprites.mesh: InstancedMesh with isInstancedLabelSprites flag
+		const mesh = new THREE.InstancedMesh(
+			new THREE.BufferGeometry(),
+			new THREE.MeshBasicMaterial(),
+			1
+		);
+		// @ts-ignore
+		mesh.isInstancedLabelSprites = true;
+		mesh.visible = true;
+		scene.add(mesh);
+
+		const sb = new SelectiveBloom(makeRenderer(), scene, makeCamera(), 1);
+		let visibleDuringBloom;
+		sb.bloomComposer.render = vi.fn(() => {
+			visibleDuringBloom = mesh.visible;
+		});
+		sb.finalComposer.render = vi.fn();
+
+		sb.render();
+
+		expect(visibleDuringBloom).toBe(false);  // hidden, not darkened
+		expect(mesh.visible).toBe(true);          // restored after
+		// @ts-ignore
+		expect(sb._nonBloomPoints).toContain(mesh); // classified correctly
+		// @ts-ignore
+		expect(sb._nonBloomMeshes).not.toContain(mesh); // NOT in mesh list
+	});
 });
