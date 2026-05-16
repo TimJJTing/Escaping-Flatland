@@ -238,6 +238,7 @@ describe('SelectiveBloom.render() material handling', () => {
 		sb._buildCache(); // populate cache
 
 		// Simulate stale cache: material removed externally
+		// @ts-ignore
 		mesh.material = null;
 
 		sb.bloomComposer.render = vi.fn();
