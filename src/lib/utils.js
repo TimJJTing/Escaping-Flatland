@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { twMerge } from 'tailwind-variants';
 
 /**
  * @param {...import('clsx').ClassValue} inputs

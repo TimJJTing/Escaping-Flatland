@@ -13,7 +13,7 @@ export class _Planet {
 	 * @param {THREE.Vector3} [rotationAxis]
 	 */
 	constructor(radius = 1, detail = 5, rotationSpeed = 0.1, rotationAxis) {
-		this.clock = new THREE.Clock();
+		this.timer = new THREE.Timer();
 		this.rotationSpeed = rotationSpeed;
 		this.rotationAxis = rotationAxis || new THREE.Vector3(0, 1, 0);
 		this.geometry = new THREE.IcosahedronGeometry(radius, detail);
@@ -21,7 +21,7 @@ export class _Planet {
 		this.needsUpdate = false;
 		// inject custom shaders
 		this.material.onBeforeCompile = (shader) => {
-			shader.uniforms.uTime = { value: this.clock.getElapsedTime() };
+			shader.uniforms.uTime = { value: this.timer.update().getElapsed() };
 			shader.uniforms.uSpeed = { value: this.rotationSpeed };
 			shader.uniforms.uAxis = { value: this.rotationAxis };
 			shader.vertexShader = shader.vertexShader.replace(
@@ -68,15 +68,15 @@ export class _Planet {
 	}
 
 	resetClock() {
-		this.clock.stop();
-		this.clock.start();
+		// restart elapsed time from zero
+		this.timer = new THREE.Timer();
 	}
 
 	update() {
 		const shader = this.material.userData.shader;
 		// update uniforms
 		if (shader) {
-			shader.uniforms.uTime.value = this.clock.getElapsedTime();
+			shader.uniforms.uTime.value = this.timer.update().getElapsed();
 			if (this.needsUpdate) {
 				shader.uniforms.uSpeed.value = this.rotationSpeed;
 				shader.uniforms.uAxis.value = this.rotationAxis;
@@ -89,7 +89,7 @@ export class _Planet {
 	 * Deletes this from scene
 	 */
 	dispose() {
-		this.clock.stop();
+		this.timer.dispose();
 
 		const geometry = this.mesh.geometry;
 		const material = this.mesh.material;

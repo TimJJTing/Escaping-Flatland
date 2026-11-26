@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
-	import { getSceneContext } from '$lib/components/providers/scene';
+	import { getSceneContext } from '#lib/components/providers/scene/index.js';
 
 	/**
 	 * @typedef {Object} Props

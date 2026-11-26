@@ -12,20 +12,20 @@
 		setSceneOptions,
 		getSceneOptions,
 		setSelectedPoint
-	} from '$lib/components/providers/scene';
-	import { Star } from '$lib/meshes/star';
-	import { Planet } from '$lib/meshes/planet';
-	import { SolarSystem } from '$lib/meshes/solar-system';
-	import { Mesh, ParticleOctree, Particles } from '$lib/components/meshes';
-	import { HemisphereLight } from '$lib/components/lights';
-	import { InteractionManager } from '$lib/components/interaction';
-	import { OptionModal } from '$lib/components/modals/option';
-	import { HelpModal } from '$lib/components/modals/help';
-	import { LoadingOverlay } from '$lib/components/loading';
-	import { DebugPanel } from '$lib/components/debug';
-	import { StarDashboard } from '$lib/components/dashboard';
-	import { SearchBar } from '$lib/components/search-bar';
-	import { palette, DATA_SOURCES } from '$lib/utils';
+	} from '#lib/components/providers/scene/index.js';
+	import { Star } from '#lib/meshes/star/index.js';
+	import { Planet } from '#lib/meshes/planet/index.js';
+	import { SolarSystem } from '#lib/meshes/solar-system/index.js';
+	import { Mesh, ParticleOctree, Particles } from '#lib/components/meshes/index.js';
+	import { HemisphereLight } from '#lib/components/lights/index.js';
+	import { InteractionManager } from '#lib/components/interaction/index.js';
+	import { OptionModal } from '#lib/components/modals/option/index.js';
+	import { HelpModal } from '#lib/components/modals/help/index.js';
+	import { LoadingOverlay } from '#lib/components/loading/index.js';
+	import { DebugPanel } from '#lib/components/debug/index.js';
+	import { StarDashboard } from '#lib/components/dashboard/index.js';
+	import { SearchBar } from '#lib/components/search-bar/index.js';
+	import { palette, DATA_SOURCES } from '#lib/utils.js';
 
 	// set* must be called before children mount so context is available
 	setDataOptions();
@@ -108,7 +108,7 @@
 		solarSystem.visible = true;
 	});
 
-	/** @type {import('$lib/utils/FrustumCuller').FrustumCuller|undefined} */
+	/** @type {import('#lib/utils/FrustumCuller.ts').FrustumCuller|undefined} */
 	let frustumCullerRef = $state(undefined);
 
 	let optionModalVisible = $state(false);

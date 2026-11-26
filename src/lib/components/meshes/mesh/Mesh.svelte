@@ -1,6 +1,6 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import { getSceneContext } from '$lib/components/providers/scene';
+	import { getSceneContext } from '#lib/components/providers/scene/index.js';
 	import { usePostProcessor } from '../utils';
 
 	/**

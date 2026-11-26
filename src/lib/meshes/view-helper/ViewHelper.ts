@@ -5,7 +5,6 @@ import {
 	BufferGeometry,
 	Camera,
 	CanvasTexture,
-	Clock,
 	Color,
 	Euler,
 	LineBasicMaterial,
@@ -22,6 +21,7 @@ import {
 	SphereGeometry,
 	Sprite,
 	SpriteMaterial,
+	Timer,
 	Vector2,
 	Vector3,
 	Vector4,
@@ -36,7 +36,7 @@ const [POS_X, POS_Y, POS_Z, NEG_X, NEG_Y, NEG_Z] = Array(6)
 
 const axesColors = [new Color(0x9a24fc), new Color(0x0069d2), new Color(0x26ee2c)];
 
-const clock = new Clock();
+const timer = new Timer();
 const targetPosition = new Vector3();
 const targetQuaternion = new Quaternion();
 const euler = new Euler();
@@ -233,7 +233,7 @@ class ViewHelper extends Object3D {
 	}
 
 	render() {
-		const delta = clock.getDelta();
+		const delta = timer.update().getDelta();
 		if (this.animating) this.animate(delta);
 
 		const x = this.domRect.left;

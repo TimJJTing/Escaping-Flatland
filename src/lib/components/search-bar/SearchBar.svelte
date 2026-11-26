@@ -2,11 +2,11 @@
 	import * as THREE from 'three';
 	import { toast } from 'svelte-sonner';
 	import { Search } from '@lucide/svelte';
-	import * as InputGroup from '$lib/components/ui/input-group';
-	import { Kbd } from '$lib/components/ui/kbd';
-	import { getSelectedPoint } from '$lib/components/providers/scene';
+	import * as InputGroup from '#lib/components/ui/input-group/index.js';
+	import { Kbd } from '#lib/components/ui/kbd/index.js';
+	import { getSelectedPoint } from '#lib/components/providers/scene/index.js';
 
-	/** @type {{ starData: import('$lib/utils/dataSources.js').StarData }} */
+	/** @type {{ starData: import('#lib/utils/dataSources.js').StarData }} */
 	let { starData } = $props();
 
 	let inputValue = $state('');

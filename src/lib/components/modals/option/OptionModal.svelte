@@ -1,11 +1,11 @@
 <script>
 	// @ts-nocheck
-	import * as Dialog from '$lib/components/ui/dialog';
-	import * as Tabs from '$lib/components/ui/tabs';
-	import { Root as Switch } from '$lib/components/ui/switch';
-	import { Root as Label } from '$lib/components/ui/label';
-	import { getDataOptions, getParticleOptions, getSceneOptions } from '$lib/components/providers/scene';
-	import { DATA_SOURCES } from '$lib/utils';
+	import * as Dialog from '#lib/components/ui/dialog/index.js';
+	import * as Tabs from '#lib/components/ui/tabs/index.js';
+	import { Root as Switch } from '#lib/components/ui/switch/index.js';
+	import { Root as Label } from '#lib/components/ui/label/index.js';
+	import { getDataOptions, getParticleOptions, getSceneOptions } from '#lib/components/providers/scene/index.js';
+	import { DATA_SOURCES } from '#lib/utils.js';
 
 	/** @type {{ visible?: boolean }} */
 	let { visible = $bindable(false) } = $props();

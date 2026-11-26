@@ -1,5 +1,5 @@
 <script>
-	import { getSceneContext } from '$lib/components/providers/scene';
+	import { getSceneContext } from '#lib/components/providers/scene/index.js';
 
 	const ctx = getSceneContext();
 

@@ -1,5 +1,5 @@
 <script>
-	import { Galaxy } from '$lib/components/galaxy';
+	import { Galaxy } from '#lib/components/galaxy/index.js';
 </script>
 
 <svelte:head>

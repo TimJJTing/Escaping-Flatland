@@ -1,8 +1,8 @@
 <script>
 	// @ts-nocheck
-	import * as Dialog from '$lib/components/ui/dialog';
+	import * as Dialog from '#lib/components/ui/dialog/index.js';
 	import { Link } from '@lucide/svelte';
-	import { Kbd } from '$lib/components/ui/kbd';
+	import { Kbd } from '#lib/components/ui/kbd/index.js';
 
 	/** @type {{ visible?: boolean }} */
 	let { visible = $bindable(false) } = $props();

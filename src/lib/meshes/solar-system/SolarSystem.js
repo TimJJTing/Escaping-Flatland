@@ -11,13 +11,13 @@ export class SolarSystem {
 	 * @returns this
 	 */
 	constructor(sun, name, planets = []) {
-		this.clock = new THREE.Clock();
+		this.timer = new THREE.Timer();
 
 		this.sun = sun;
 		this.planets = planets || [];
 		this.name = name;
 
-		this._time = this.clock.getElapsedTime();
+		this._time = this.timer.update().getElapsed();
 
 		this.group = this._createGroup();
 
@@ -71,8 +71,8 @@ export class SolarSystem {
 	}
 
 	resetClock() {
-		this.clock.stop();
-		this.clock.start();
+		// restart elapsed time from zero
+		this.timer = new THREE.Timer();
 	}
 
 	set visible(v) {
@@ -84,7 +84,7 @@ export class SolarSystem {
 	}
 
 	update() {
-		this._time = this.clock.getElapsedTime();
+		this._time = this.timer.update().getElapsed();
 		this.sun.update();
 		for (let i = 0, planet; i < this.planets.length; i++) {
 			planet = this.planets[i];
@@ -99,7 +99,7 @@ export class SolarSystem {
 	 * Deletes this from scene
 	 */
 	dispose() {
-		this.clock.stop();
+		this.timer.dispose();
 		this.sun.dispose();
 		for (let i = 0; i < this.planets.length; i++) {
 			this.planets[i].dispose();

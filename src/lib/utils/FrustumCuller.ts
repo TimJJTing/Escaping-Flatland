@@ -16,7 +16,7 @@ import {
 	MeshBasicMaterial,
 	MeshPhongMaterial
 } from 'three';
-import { InstancedLabelSprites } from '$lib/meshes/instanced-label-sprites';
+import { InstancedLabelSprites } from '#lib/meshes/instanced-label-sprites/index.js';
 import type { Octree, PointOctant } from 'sparse-octree';
 
 type StarPoint = { index: number; group: number; id: string };

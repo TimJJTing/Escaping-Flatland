@@ -1,7 +1,7 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import { getSceneContext } from '$lib/components/providers/scene';
-	import { Particles } from '$lib/meshes/particles';
+	import { getSceneContext } from '#lib/components/providers/scene/index.js';
+	import { Particles } from '#lib/meshes/particles/index.js';
 
 	/**
 	 * @typedef {Object} Props
