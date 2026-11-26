@@ -1,20 +1,20 @@
 <script>
 	import { onMount, onDestroy, untrack } from 'svelte';
 	import * as THREE from 'three';
-	import { tweenGroup } from '$lib/utils/tweenCamera';
+	import { tweenGroup } from '#lib/utils/tweenCamera.js';
 	import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
-	import { ViewHelper } from '$lib/meshes/view-helper';
-	import { tweenCamera } from '$lib/utils/tweenCamera';
-	import { addLabel } from '$lib/utils/addLabel';
+	import { ViewHelper } from '#lib/meshes/view-helper/index.ts';
+	import { tweenCamera } from '#lib/utils/tweenCamera.js';
+	import { addLabel } from '#lib/utils/addLabel.js';
 	import {
 		getSceneContext,
 		getSceneOptions,
 		getSelectedPoint
-	} from '$lib/components/providers/scene';
+	} from '#lib/components/providers/scene/index.js';
 
 	/**
 	 * @typedef {Object} Props
-	 * @property {import('$lib/utils/FrustumCuller').FrustumCuller|undefined} frustumCullerRef
+	 * @property {import('#lib/utils/FrustumCuller.ts').FrustumCuller|undefined} frustumCullerRef
 	 */
 	/** @type {Props} */
 	let { frustumCullerRef } = $props();

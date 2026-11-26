@@ -3,9 +3,9 @@
 	import { cubicInOut } from 'svelte/easing';
 	import { X, ChartLine } from '@lucide/svelte';
 	import NumberFlow from '@number-flow/svelte';
-	import { getSelectedPoint } from '$lib/components/providers/scene';
+	import { getSelectedPoint } from '#lib/components/providers/scene/index.js';
 
-	/** @type {{ starData: import('$lib/utils/dataSources.js').StarData }} */
+	/** @type {{ starData: import('#lib/utils/dataSources.js').StarData }} */
 	let { starData } = $props();
 
 	const sel = getSelectedPoint();

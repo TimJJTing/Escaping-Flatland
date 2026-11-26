@@ -17,7 +17,7 @@ export class _Star {
 		color = new THREE.Vector3(1, 1, 1),
 		addLight = false
 	) {
-		this.clock = new THREE.Clock();
+		this.timer = new THREE.Timer();
 		this.speed = speed;
 		this.color = color;
 		// differential rotation constants: https://en.wikipedia.org/wiki/Solar_rotation
@@ -28,7 +28,7 @@ export class _Star {
 		this.material = new THREE.ShaderMaterial({
 			uniforms: {
 				uColor: { value: this.color },
-				uTime: { value: this.clock.getElapsedTime() },
+				uTime: { value: this.timer.update().getElapsed() },
 				uSpeed: { value: this.speed },
 				uDiffRotationCA: { value: this.diffRotationCA },
 				uDiffRotationCB: { value: this.diffRotationCB },
@@ -53,12 +53,12 @@ export class _Star {
 	}
 
 	resetClock() {
-		this.clock.stop();
-		this.clock.start();
+		// restart elapsed time from zero
+		this.timer = new THREE.Timer();
 	}
 
 	update() {
-		this.material.uniforms.uTime.value = this.clock.getElapsedTime();
+		this.material.uniforms.uTime.value = this.timer.update().getElapsed();
 		// needsUpdate
 		if (this.needsUpdate) {
 			this.material.uniforms.uColor.value = this.color;
@@ -75,7 +75,7 @@ export class _Star {
 	 * Deletes this from scene
 	 */
 	dispose() {
-		this.clock.stop();
+		this.timer.dispose();
 
 		if (this.light) {
 			this.mesh.remove(this.light);

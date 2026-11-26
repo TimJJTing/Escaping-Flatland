@@ -28,7 +28,7 @@ class SceneContext {
 	renderer      = $state(/** @type {import('three').WebGLRenderer|undefined} */ (undefined));
 	controls      = $state(/** @type {import('three/addons/controls/OrbitControls.js').OrbitControls|undefined} */ (undefined));
 	mouse         = $state(/** @type {import('three').Vector2|undefined} */ (undefined));
-	postprocessor = $state(/** @type {import('$lib/utils/SelectiveBloom').SelectiveBloom|undefined} */ (undefined));
+	postprocessor = $state(/** @type {import('#lib/utils/SelectiveBloom.js').SelectiveBloom|undefined} */ (undefined));
 	sceneReady    = $state(false);
 	camPos        = $state({ x: 0, y: 0, z: 0 });
 	renderInfo    = $state({ frame: 0, calls: 0, triangles: 0, points: 0, lines: 0 });

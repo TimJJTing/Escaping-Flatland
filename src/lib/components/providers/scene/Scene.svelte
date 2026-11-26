@@ -8,8 +8,8 @@
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 	import Stats from 'three/addons/libs/stats.module.js';
 	import { onMount, onDestroy } from 'svelte';
-	import { SelectiveBloom } from '$lib/utils';
-	import { browser } from '$app/environment';
+	import { SelectiveBloom } from '#lib/utils.js';
+	import { browser } from '$app/env';
 	import { setSceneContext, getSceneOptions } from './context.svelte.js';
 
 
