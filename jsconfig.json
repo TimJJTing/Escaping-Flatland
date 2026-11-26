@@ -1,17 +1,8 @@
 {
 	"extends": "$app/tsconfig",
-	"include": ["src", "test", "tests", "*"],
-	"exclude": ["src/service-worker"],
 	"compilerOptions": {
-		"allowJs": true,
-		"checkJs": true,
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-		"resolveJsonModule": true,
-		"skipLibCheck": true,
 		"sourceMap": true,
-		"strict": true,
-		"moduleResolution": "bundler"
-	}
-	// `#lib` is resolved via the `imports` field in package.json: https://svelte.dev/docs/kit/$lib
+		"strict": true
+	},
+	"include": ["src", "vite.config.js", "playwright.config.js", "tests"]
 }
